@@ -1,0 +1,58 @@
+﻿<Window x:Name="Messenger" x:Class="MessengerWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MessengerWPF"
+        mc:Ignorable="d"
+        Title="Messenger" Height="700" Width="900" Background="{x:Null}" Loaded="Messenger_Loaded">
+    <Grid Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="261*"/>
+            <ColumnDefinition Width="632*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid x:Name="ThreadsGrid" HorizontalAlignment="Left" Margin="0,70.5,0,0" Width="260.708">
+            <TabControl SelectionChanged="TabControl_SelectionChanged">
+                <TabItem x:Name="ThreadsTab" Header="Messages">
+                    <Grid Background="#FFE5E5E5">
+                        <ScrollViewer PanningMode="VerticalOnly" VerticalScrollBarVisibility="Auto" CanContentScroll="True" Background="LightGray">
+                            <StackPanel x:Name="ThreadsPanel" Margin="0,0,-0.5,0.5"/>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem>
+                <TabItem x:Name="ContactsTab" Header="Contacts" Margin="-2,-2,-13,0">
+                    <Grid Background="#FFE5E5E5">
+                        <ScrollViewer PanningMode="VerticalOnly" VerticalScrollBarVisibility="Auto" CanContentScroll="True" Background="LightGray">
+                            <StackPanel x:Name="ContactsPanel" Margin="0,0,-0.5,0.5"/>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+
+
+        </Grid>
+        <Grid x:Name="MessagesGrid" Margin="0,70,0,0" Grid.Column="1" Background="White">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="41"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="509*"/>
+                <ColumnDefinition Width="122*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer x:Name="MessageScrollviewer" Margin="0,0,0,40" Padding="5,5,5,0" PanningMode="VerticalOnly" Grid.ColumnSpan="2" Grid.RowSpan="2">
+                <StackPanel x:Name="MessageStack" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
+            </ScrollViewer>
+            <TextBox x:Name="TypeBox" TextWrapping="Wrap" Padding="2" Grid.Row="1" Margin="0,0,0,4" VerticalContentAlignment="Center" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>
+            <Button x:Name="SendButton" Content="Send" HorizontalContentAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,0,0,4" Click="SendButton_Click"/>
+        </Grid>
+        <Grid x:Name="TitleGrid" HorizontalAlignment="Left" Height="70.5" VerticalAlignment="Top" Width="892" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="261*"/>
+                <ColumnDefinition Width="631*"/>
+            </Grid.ColumnDefinitions>
+            <Grid/>
+        </Grid>
+    </Grid>
+</Window>
