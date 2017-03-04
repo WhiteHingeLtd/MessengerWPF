@@ -26,7 +26,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -80,14 +80,23 @@
     <Compile Include="Login.xaml.cs">
       <DependentUpon>Login.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\ContactControl.xaml.cs">
+      <DependentUpon>ContactControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\OtherMessage.xaml.cs">
       <DependentUpon>OtherMessage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\OtherPictureControl.xaml.cs">
+      <DependentUpon>OtherPictureControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\SelfMessage.xaml.cs">
       <DependentUpon>SelfMessage.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ThreadControl.xaml.cs">
       <DependentUpon>ThreadControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\UserPictureControl.xaml.cs">
+      <DependentUpon>UserPictureControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="WPFMsgBox.xaml.cs">
       <DependentUpon>WPFMsgBox.xaml</DependentUpon>
@@ -108,7 +117,15 @@
       <DependentUpon>MessengerMain.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="UserControls\ContactControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\OtherMessage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\OtherPictureControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -117,6 +134,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\ThreadControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\UserPictureControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -163,6 +184,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="chacticon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="UserControls\addicon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

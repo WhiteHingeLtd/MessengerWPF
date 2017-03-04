@@ -3,11 +3,12 @@
 namespace MessengerWPF.UserControls
 {
     /// <summary>
-    /// Interaction logic for SelfMessage.xaml
+    /// Interaction logic for ContactControl.xaml
     /// </summary>
-    public partial class SelfMessage : UserControl
+    public partial class ContactControl : UserControl
     {
-        public SelfMessage()
+        public int EmployeeID = -1;
+        public ContactControl()
         {
             InitializeComponent();
         }

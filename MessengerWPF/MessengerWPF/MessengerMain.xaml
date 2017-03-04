@@ -53,6 +53,7 @@
                 <ColumnDefinition Width="631*"/>
             </Grid.ColumnDefinitions>
             <Grid/>
+            <TextBlock x:Name="ThreadUserTextBlock" Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="50" Width="518" FontSize="16"/>
         </Grid>
     </Grid>
 </Window>
