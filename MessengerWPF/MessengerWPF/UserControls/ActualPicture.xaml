@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Large Preview" Icon="/MessengerWPF;component/chacticon.ico" WindowStartupLocation="CenterScreen" Background="{x:Null}">
     <Grid>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <Image x:Name="NewImage" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

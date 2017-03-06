@@ -80,6 +80,9 @@
     <Compile Include="Login.xaml.cs">
       <DependentUpon>Login.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\ActualPicture.xaml.cs">
+      <DependentUpon>ActualPicture.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ContactControl.xaml.cs">
       <DependentUpon>ContactControl.xaml</DependentUpon>
     </Compile>
@@ -117,6 +120,10 @@
       <DependentUpon>MessengerMain.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="UserControls\ActualPicture.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\ContactControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

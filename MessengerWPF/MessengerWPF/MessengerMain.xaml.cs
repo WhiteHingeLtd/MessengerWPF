@@ -192,15 +192,19 @@ namespace MessengerWPF
                             var Msg = new UserPictureControl();
                             Msg.ImageContainer.Source = new BitmapImage(new Uri(message));
                             Msg.InitializeComponent();
+                            Msg.MouseUp += Msg_MouseUp;
+                            Msg.TouchUp += Msg_TouchUp;
                             MessageStack.Children.Add(Msg);
                         }
                         else
                         {
-                            var Msg = new OtherPictureControl();
-                            Msg.ImageContainer.Source = new BitmapImage(new Uri(message));
-                            Msg.SenderName.Text = empcol.FindEmployeeByID(Int32.Parse(result[1].ToString())).FullName;
-                            Msg.InitializeComponent();
-                            MessageStack.Children.Add(Msg);
+                            var OtherMsg = new OtherPictureControl();
+                            OtherMsg.ImageContainer.Source = new BitmapImage(new Uri(message));
+                            OtherMsg.SenderName.Text = empcol.FindEmployeeByID(Int32.Parse(result[1].ToString())).FullName;
+                            OtherMsg.MouseUp += OtherMsg_MouseUp;
+                            OtherMsg.TouchUp += OtherMsg_TouchUp;
+                            OtherMsg.InitializeComponent();
+                            MessageStack.Children.Add(OtherMsg);
                         }
                     }
                     if (result[1].ToString() == authd.PayrollId.ToString())
@@ -239,6 +243,42 @@ namespace MessengerWPF
                 }
             }
 
+        }
+
+        private void OtherMsg_TouchUp(object sender, System.Windows.Input.TouchEventArgs e)
+        {
+            var control = sender as UserPictureControl;
+            var ShowPicture = new ActualPicture();
+            ShowPicture.NewImage.Source = control.ImageContainer.Source;
+            ShowPicture.InitializeComponent();
+            ShowPicture.Show();
+        }
+
+        private void OtherMsg_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var control = sender as UserPictureControl;
+            var ShowPicture = new ActualPicture();
+            ShowPicture.NewImage.Source = control.ImageContainer.Source;
+            ShowPicture.InitializeComponent();
+            ShowPicture.Show();
+        }
+
+        private void Msg_TouchUp(object sender, System.Windows.Input.TouchEventArgs e)
+        {
+            var control = sender as UserPictureControl;
+            var ShowPicture = new ActualPicture();
+            ShowPicture.NewImage.Source = control.ImageContainer.Source;
+            ShowPicture.InitializeComponent();
+            ShowPicture.Show();
+        }
+
+        private void Msg_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var control = sender as UserPictureControl;
+            var ShowPicture = new ActualPicture();
+            ShowPicture.NewImage.Source = control.ImageContainer.Source;
+            ShowPicture.InitializeComponent();
+            ShowPicture.Show();
         }
 
         private void TextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
