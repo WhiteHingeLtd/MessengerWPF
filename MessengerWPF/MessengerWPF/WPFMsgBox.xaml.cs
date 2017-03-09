@@ -5,7 +5,7 @@ namespace MessengerWPF
     /// <summary>
     /// Interaction logic for WPFMsgBox.xaml
     /// </summary>
-    public partial class WPFMsgBox : Window
+    public partial class WPFMsgBox
     {
         public WPFMsgBox()
         {
@@ -16,7 +16,7 @@ namespace MessengerWPF
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
         }
     }
 }

@@ -8,35 +8,35 @@ namespace MessengerWPF
     /// <summary>
     /// Interaction logic for Login.xaml
     /// </summary>
-    public partial class Login : Window
+    public partial class Login
     {
         public static Employee CurrentEmployee = new Employee();
-        public EmployeeCollection empcol = new EmployeeCollection();
-        private bool requirespin = false;
+        public EmployeeCollection Empcol = new EmployeeCollection();
+        private bool _requirespin;
         public Login()
         {
             InitializeComponent();
             LoginScanBox.Focus();
         }
-        private void ProcessData(string Data)
+        private void ProcessData(string data)
         {
-            if (Data.StartsWith("qzu"))
+            if (data.StartsWith("qzu"))
             {
-                MainWindow.authd = empcol.FindEmployeeByID(Int32.Parse(Data.Replace("qzu", "")));
+                MainWindow.authd = Empcol.FindEmployeeByID(Int32.Parse(data.Replace("qzu", "")));
                 this.Close();
             }
-            else if (Data.Length > 0 & Data.Length < 3)
+            else if (data.Length > 0 & data.Length < 3)
             {
-                LoginTitle.Text = empcol.FindEmployeeByID(Convert.ToInt32(Data)).FullName + " Please enter your Pin";
-                CurrentEmployee = empcol.FindEmployeeByID(Convert.ToInt32(Data));
-                requirespin = true;
+                LoginTitle.Text = Empcol.FindEmployeeByID(Convert.ToInt32(data)).FullName + " Please enter your Pin";
+                CurrentEmployee = Empcol.FindEmployeeByID(Convert.ToInt32(data));
+                _requirespin = true;
             }
-            else if (requirespin)
+            else if (_requirespin)
             {
-                if (CurrentEmployee.CheckPin(Data))
+                if (CurrentEmployee.CheckPin(data))
                 {
                     MainWindow.authd = CurrentEmployee;
-                     requirespin = false;
+                     _requirespin = false;
                     this.Close();
                 }
                 else
@@ -76,8 +76,11 @@ namespace MessengerWPF
         private void Keypad1_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
+            if (button != null)
+            {
             LoginScanBox.Text += button.Content;
             LoginScanBox.Focus();
+            }
         }
     }
 }

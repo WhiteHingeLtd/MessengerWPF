@@ -1,11 +1,9 @@
-﻿using System.Windows.Controls;
-
-namespace MessengerWPF.UserControls
+﻿namespace MessengerWPF.UserControls
 {
     /// <summary>
     /// Interaction logic for SelfMessage.xaml
     /// </summary>
-    public partial class SelfMessage : UserControl
+    public partial class SelfMessage
     {
         public SelfMessage()
         {

@@ -1,13 +1,12 @@
-﻿using System.Windows.Controls;
-
-namespace MessengerWPF.UserControls
+﻿namespace MessengerWPF.UserControls
 {
     /// <summary>
     /// Interaction logic for ContactControl.xaml
     /// </summary>
-    public partial class ContactControl : UserControl
+    public partial class ContactControl
     {
         public int EmployeeID = -1;
+
         public ContactControl()
         {
             InitializeComponent();

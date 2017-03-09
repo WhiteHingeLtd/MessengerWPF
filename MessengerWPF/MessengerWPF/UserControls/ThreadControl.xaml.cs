@@ -1,12 +1,10 @@
-﻿using System.Windows.Controls;
-
-namespace MessengerWPF.UserControls
+﻿namespace MessengerWPF.UserControls
 {
     /// <summary>
     /// Interaction logic for ThreadControl.xaml
     /// </summary>
     /// 
-    public partial class ThreadControl : UserControl
+    public partial class ThreadControl
     {
         public ThreadControl()
         {

@@ -3,10 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:MessengerWPF.UserControls"
         mc:Ignorable="d"
         Title="Large Preview" Icon="/MessengerWPF;component/chacticon.ico" WindowStartupLocation="CenterScreen" Background="{x:Null}">
-    <Grid>
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
         <Image x:Name="NewImage" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
     </Grid>
