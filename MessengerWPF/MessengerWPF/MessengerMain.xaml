@@ -12,8 +12,11 @@
             <ColumnDefinition Width="632*"/>
         </Grid.ColumnDefinitions>
 
-        <Grid x:Name="ThreadsGrid" HorizontalAlignment="Left" Margin="0,70.5,0,0" Width="260.708">
-            <TabControl SelectionChanged="TabControl_SelectionChanged">
+        <Grid x:Name="ThreadsGrid" HorizontalAlignment="Left" Margin="0,56,0,0" Width="261">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TabControl SelectionChanged="TabControl_SelectionChanged" Margin="0,0,0,0.5">
                 <TabItem x:Name="ThreadsTab" Header="Messages">
                     <Grid Background="#FFE5E5E5">
                         <ScrollViewer PanningMode="VerticalOnly" VerticalScrollBarVisibility="Auto" CanContentScroll="True" Background="LightGray">
@@ -47,15 +50,15 @@
             <TextBox x:Name="TypeBox" TextWrapping="Wrap" Padding="2" Grid.Row="1" Margin="0,0,0,4" VerticalContentAlignment="Center" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>
             <Button x:Name="SendButton" Content="Send" HorizontalContentAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,0,0,4" Click="SendButton_Click"/>
         </Grid>
-        <Grid x:Name="TitleGrid" HorizontalAlignment="Left" Height="70.5" VerticalAlignment="Top" Width="892" Grid.ColumnSpan="2">
+        <Grid x:Name="TitleGrid" HorizontalAlignment="Left" Height="56" VerticalAlignment="Top" Width="892" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="261*"/>
                 <ColumnDefinition Width="631*"/>
             </Grid.ColumnDefinitions>
             <Grid>
-                <Image x:Name="SettingsImage" Source="Cog-512.png" Margin="0,0,191,0"/>
+                <Image x:Name="SettingsImage" Source="Cog-512.png" Margin="0,0,211,0.5" Width="50"/>
             </Grid>
-            <TextBlock x:Name="ThreadUserTextBlock" Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="50" Width="518" FontSize="16"/>
+            <TextBlock x:Name="ThreadUserTextBlock" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" Width="518" FontSize="16" Height="50" VerticalAlignment="Top"/>
         </Grid>
     </Grid>
 </Window>
