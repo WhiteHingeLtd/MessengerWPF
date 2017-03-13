@@ -20,9 +20,11 @@ namespace MessengerWPF
     {
         public EmployeeCollection empcol = new EmployeeCollection();
         public BackgroundWorker ThreadLoader = new BackgroundWorker();
+        public BackgroundWorker ThreadFinder = new BackgroundWorker();
         public DispatcherTimer ThreadRefreshTimer = new DispatcherTimer();
         public DispatcherTimer RefreshLatestThread = new DispatcherTimer();
         public DispatcherTimer ThreadContactLoader = new DispatcherTimer();
+        public Dictionary<string, string> CurrentThreads = new Dictionary<string, string>();
         public static Employee authd = new Employee();
         private int CurrentThread = -1;
         private int LatestThreadID = -1;
@@ -31,8 +33,23 @@ namespace MessengerWPF
         {
             authd = null;
             InitializeComponent();
+            ThreadFinder.DoWork += ThreadFinder_DoWork;
             
         }
+
+        private void ThreadFinder_DoWork(object sender, DoWorkEventArgs e)
+        {
+            CurrentThreads.Clear();
+            var Threads = MSSQLPublic.SelectData("SELECT threadid from whldata.messenger_threads WHERE participantid='"+authd.PayrollId.ToString()+"'") as ArrayList;
+            if (Threads != null)
+            {                          
+                foreach (ArrayList Result in Threads)
+                {
+                    CurrentThreads.Add(Result[0].ToString(), authd.PayrollId.ToString());
+                }
+            }
+        }
+
         private void Messenger_Loaded(object sender, RoutedEventArgs e)
         {
             try
@@ -50,6 +67,7 @@ namespace MessengerWPF
                 loginwindow.ShowDialog();
             }
             ThreadLoader.DoWork += ThreadLoader_DoWork;
+            ThreadLoader.RunWorkerAsync();
             
             ThreadRefreshTimer.Interval = new TimeSpan(0, 0, 0, 1);
             ThreadRefreshTimer.Tick += RefreshTimer_Tick;
@@ -64,7 +82,6 @@ namespace MessengerWPF
 
             LoadThreads();
             TypeBox.IsReadOnly = true;
-            ThreadLoader.RunWorkerAsync();
             LoadContactInfo();
         }
 
@@ -79,6 +96,10 @@ namespace MessengerWPF
             if (!ThreadLoader.IsBusy)
                 {
                 ThreadLoader.RunWorkerAsync();
+            }
+            if (!ThreadFinder.IsBusy)
+            {
+                ThreadFinder.RunWorkerAsync();
             }
         }
 
@@ -147,6 +168,7 @@ namespace MessengerWPF
                 CurrentThread = ctrl.ThreadID;
                 ProcessThreadID(ctrl.ThreadID, true);
                 TypeBox.IsReadOnly = false;
+                TypeBox.Focus();
             }
         }
 
@@ -307,7 +329,7 @@ namespace MessengerWPF
 
         private void OtherMsg_TouchUp(object sender, TouchEventArgs e)
         {
-            var control = sender as UserPictureControl;
+            var control = sender as OtherPictureControl;
             if (control != null)
             {
                 var ShowPicture = new ActualPicture();
@@ -319,7 +341,7 @@ namespace MessengerWPF
 
         private void OtherMsg_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            var Control = sender as UserPictureControl;
+            var Control = sender as OtherPictureControl;
             if (Control != null)
             {
                 var ShowPicture = new ActualPicture();
@@ -469,6 +491,11 @@ namespace MessengerWPF
             T parent = ParentObject as T;
             if (parent != null) return parent;
             else return FindParent<T>(ParentObject); //Intentional Recursive method
+        }
+
+        private void FindNewMessages(int EmployeeID)
+        {
+            
         }
     }
 }
