@@ -24,8 +24,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>https://apps.ad.whitehinge.com/AppPublish/Messenger2/</InstallUrl>
-    <ApplicationRevision>3</ApplicationRevision>
+    <InstallUrl>http://apps.ad.whitehinge.com/AppPublish/Messenger2/</InstallUrl>
+    <ApplicationRevision>8</ApplicationRevision>
     <ApplicationVersion>0.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>

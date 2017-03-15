@@ -2,7 +2,7 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <PublishUrlHistory>Y:\Intra\AppPublish\Messenger2\|publish\</PublishUrlHistory>
-    <InstallUrlHistory>https://apps.ad.whitehinge.com/AppPublish/Messenger2/</InstallUrlHistory>
+    <InstallUrlHistory>http://apps.ad.whitehinge.com/AppPublish/Messenger2/|https://apps.ad.whitehinge.com/AppPublish/Messenger2/</InstallUrlHistory>
     <SupportUrlHistory />
     <UpdateUrlHistory />
     <BootstrapperUrlHistory />

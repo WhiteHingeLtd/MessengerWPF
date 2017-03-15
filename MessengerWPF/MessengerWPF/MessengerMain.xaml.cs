@@ -5,6 +5,10 @@ using System.Windows.Controls;
 using System.ComponentModel;
 using MessengerWPF.UserControls;
 using System;
+using System.Linq;
+using System.Security.Policy;
+using System.Text.RegularExpressions;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Input;
@@ -228,6 +232,98 @@ namespace MessengerWPF
                             MessageStack.Children.Add(OtherMsg);
                         }
                     }
+                    else if (message.Contains("https://") || message.Contains("http://"))
+                    {
+                        if (result[1].ToString() == authd.PayrollId.ToString())
+                        {
+                            var Msg = new SelfMessage();
+                            Msg.FromMessageBox.Text = "";
+                            Msg.FromMessageBox.Inlines.Clear();
+                            string[] SplitStrings = Regex.Split(result[2].ToString(), " ");
+                            
+                            foreach (string Splits in SplitStrings)
+                            {
+                                if (Splits.Contains("http://") || Splits.Contains("https://"))
+                                {
+                                    string[] SplitHyperlinks = Regex.Split(Splits, " ");
+                                    foreach (string HyperLinks in SplitHyperlinks)
+                                    {
+                                        if (HyperLinks.Contains("http://") || HyperLinks.Contains("https://"))
+                                        {
+                                            Hyperlink NewHyperLink = new Hyperlink();
+                                            NewHyperLink.NavigateUri = new Uri(HyperLinks);
+                                            NewHyperLink.Inlines.Add(HyperLinks);
+                                            NewHyperLink.RequestNavigate += NewHyperLink_RequestNavigate;
+                                            Msg.FromMessageBox.Inlines.Add(NewHyperLink + " ");
+                                        }
+                                        else
+                                        {
+                                            Msg.FromMessageBox.Inlines.Add(Splits + " ");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Msg.FromMessageBox.Inlines.Add(Splits + " ");
+                                }
+                            }
+                            Msg.InitializeComponent();
+                            MessageStack.Children.Add(Msg);
+                        }
+                        else if (result[1].ToString() != authd.PayrollId.ToString())
+                        {
+                            var Msg = new OtherMessage();
+                            Msg.OtherMessageBox.Text = "";
+                            Msg.OtherMessageBox.Inlines.Clear();
+                            string[] SplitStrings = Regex.Split(result[2].ToString(), " ");
+                            string LastString = SplitStrings.Last();
+                            foreach (string Splits in SplitStrings)
+                            {
+                                bool IsLast;
+                                if (Splits == LastString) IsLast = true;
+                                else IsLast = false;
+                                if (Splits.Contains("http://") || Splits.Contains("https://"))
+                                {
+                                    string[] SplitHyperlinks = Regex.Split(Splits, " ");
+                                    foreach (string HyperLinks in SplitHyperlinks)
+                                    {
+                                        if (HyperLinks.Contains("http://") || HyperLinks.Contains("https://"))
+                                        {
+                                            Hyperlink NewHyperLink = new Hyperlink();
+                                            NewHyperLink.NavigateUri = new Uri(HyperLinks);
+                                            NewHyperLink.Inlines.Add(HyperLinks);
+                                            NewHyperLink.RequestNavigate += NewHyperLink_RequestNavigate;
+                                            if (IsLast) Msg.OtherMessageBox.Inlines.Add(NewHyperLink);
+                                            else
+                                            {
+                                                Msg.OtherMessageBox.Inlines.Add(NewHyperLink + " ");
+                                            }
+                                            
+                                        }
+                                        else
+                                        {
+                                            if (IsLast) Msg.OtherMessageBox.Inlines.Add(Splits);
+                                            else
+                                            {
+                                                Msg.OtherMessageBox.Inlines.Add(Splits + " ");
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (IsLast) Msg.OtherMessageBox.Inlines.Add(Splits);
+                                    else
+                                    {
+                                        Msg.OtherMessageBox.Inlines.Add(Splits + " ");
+                                    }
+                                }
+                            }
+                            Msg.SenderName.Text = empcol.FindEmployeeByID(Int32.Parse(result[1].ToString())).FullName;
+                            Msg.InitializeComponent();
+                            MessageStack.Children.Add(Msg);
+                        }
+                    }
                     else if (result[1].ToString() == authd.PayrollId.ToString())
                     {
                         var Msg = new SelfMessage();
@@ -243,11 +339,15 @@ namespace MessengerWPF
                         Msg.InitializeComponent();
                         MessageStack.Children.Add(Msg);
 
-                        if(!FirstLoad)
-                        { 
-                        TextOnlyNotification[] NotiText = {new TextOnlyNotification(result[2].ToString(), HandleNoti)};
-                        NotificationReturnable NotiReturn = Notification.CreateNotification("Messenger",NotiText,20);
-                        
+                        if (!FirstLoad)
+                        {
+                            TextOnlyNotification[] NotiText =
+                            {
+                                new TextOnlyNotification(result[2].ToString(), HandleNoti)
+                            };
+                            NotificationReturnable NotiReturn = Notification.CreateNotification("Messenger", NotiText,
+                                20);
+
                         }
                     }
 
@@ -301,11 +401,16 @@ namespace MessengerWPF
             LoadNotifications();
 
         }
+
+        private void NewHyperLink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
         private void ThreadFinder_DoWork(object sender, DoWorkEventArgs e)
         {
             CurrentThreads.Clear();
-            var Threads = MSSQLPublic.SelectData("SELECT messageid from whldata.messenger_threads WHERE participantid='" + authd.PayrollId.ToString() + "'ORDER BY messageid desc") as ArrayList;
+            var Threads = MSSQLPublic.SelectData("SELECT threadid from whldata.messenger_threads WHERE participantid='" + authd.PayrollId.ToString() + "'ORDER BY threadid desc") as ArrayList;
             if (Threads != null)
             {
                 foreach (ArrayList Result in Threads)
@@ -316,16 +421,33 @@ namespace MessengerWPF
             UserLastThreadNoti.Clear();
             foreach (KeyValuePair<string, string> entry in CurrentThreads)
             {
-                var LatestMessage = MSSQLPublic.SelectData("SELECT TOP1 messageid from whldata.messenger_messages WHERE threadid='" + entry.Key + "';") as ArrayList;
+                var LatestMessage = MSSQLPublic.SelectData("SELECT TOP 1 messageid from whldata.messenger_messages WHERE threadid='" + entry.Key + "' ORDER BY messageid desc;") as ArrayList;
                 if (LatestMessage == null) continue;
-                UserLastThreadNoti.Add(Int32.Parse(entry.Key), Int32.Parse(LatestMessage[0].ToString()));
+                if (LatestMessage.Count == 0) continue;
+                try
+                {
+                ArrayList Result = LatestMessage[0] as ArrayList;
+                
+                UserLastThreadNoti.Add(Convert.ToInt32(entry.Key), Convert.ToInt32(Result[0].ToString()));
+                }
+                catch (Exception ex)
+                {
+                    continue;
+                }
+
             }
         }
         private void LoadNotifications()
         {
             foreach (KeyValuePair<int, int> Threads in UserLastThreadNoti)
             {
-                
+                var LatestMessage = MSSQLPublic.SelectData("SELECT * from whldata.messenger_messages WHERE threadid='"+Threads.Key.ToString()+"' AND messageid > '"+Threads.Value.ToString() + "';") as ArrayList;
+                foreach (ArrayList Result in LatestMessage)
+                {
+                    TextOnlyNotification[] NotiText = { new TextOnlyNotification(Result[2].ToString(), HandleNoti) };
+                    Notification.CreateNotification("Messenger", NotiText, 20);
+                }
+            
             }
         }
 #region Click Events
@@ -370,7 +492,6 @@ namespace MessengerWPF
 
         private void Msg_TouchUp(object sender, TouchEventArgs e)
         {
-
             var control = sender as UserPictureControl;
             if (control != null)
             {
