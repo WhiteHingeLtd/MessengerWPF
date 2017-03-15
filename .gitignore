@@ -50,3 +50,4 @@ MessengerWPF/MessengerWPF/obj/*
 MessengerWPF/MessengerWPF/bin/*
 MessengerWPF/MessengerWPF/SPC.pfx
 *.suo
+*.tmp
