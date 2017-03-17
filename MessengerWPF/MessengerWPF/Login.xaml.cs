@@ -22,8 +22,8 @@ namespace MessengerWPF
         {
             if (data.StartsWith("qzu"))
             {
-                MainWindow.authd = Empcol.FindEmployeeByID(Int32.Parse(data.Replace("qzu", "")));
-                this.Close();
+                MainWindow.AuthdEmployee = Empcol.FindEmployeeByID(Int32.Parse(data.Replace("qzu", "")));
+                Close();
             }
             else if (data.Length > 0 & data.Length < 3)
             {
@@ -35,15 +35,15 @@ namespace MessengerWPF
             {
                 if (CurrentEmployee.CheckPin(data))
                 {
-                    MainWindow.authd = CurrentEmployee;
+                    MainWindow.AuthdEmployee = CurrentEmployee;
                      _requirespin = false;
-                    this.Close();
+                    Close();
                 }
                 else
                 {
-                    var msg = new WPFMsgBox();
-                    msg.Body.Text = "That is the wrong pin, please try again";
-                    msg.ShowDialog();
+                    var Msg = new WPFMsgBox();
+                    Msg.Body.Text = "That is the wrong pin, please try again";
+                    Msg.ShowDialog();
                 }
             }
         }
@@ -75,10 +75,10 @@ namespace MessengerWPF
 
         private void Keypad1_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            if (button != null)
+            var Ctrl = sender as Button;
+            if (Ctrl != null)
             {
-            LoginScanBox.Text += button.Content;
+            LoginScanBox.Text += Ctrl.Content;
             LoginScanBox.Focus();
             }
         }

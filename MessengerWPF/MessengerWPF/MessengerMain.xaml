@@ -6,7 +6,9 @@
 
         mc:Ignorable="d"
         Title="Messenger" Height="700" Width="900" Background="{x:Null}" Loaded="Messenger_Loaded" Closed="Messenger_Closed">
+    
     <Grid Background="White">
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="261*"/>
             <ColumnDefinition Width="632*"/>
