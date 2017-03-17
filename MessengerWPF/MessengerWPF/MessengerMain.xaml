@@ -10,8 +10,8 @@
     <Grid Background="White">
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="261*"/>
-            <ColumnDefinition Width="632*"/>
+            <ColumnDefinition Width="263"/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
         <Grid x:Name="ThreadsGrid" HorizontalAlignment="Left" Margin="0,56,0,0" Width="261">
@@ -34,7 +34,7 @@
 
 
         </Grid>
-        <Grid x:Name="MessagesGrid" Margin="0,70,0,0" Grid.Column="1" Background="White">
+        <Grid x:Name="MessagesGrid" Margin="0.292,70,0,0" Grid.Column="1" Background="White">
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition Height="41"/>
@@ -54,10 +54,12 @@
                 <ColumnDefinition Width="261*"/>
                 <ColumnDefinition Width="631*"/>
             </Grid.ColumnDefinitions>
-            <Grid>
-                <Image x:Name="SettingsImage" Source="Cog-512.png" Margin="0,0,211,0.5" Width="50"/>
-            </Grid>
             <TextBlock x:Name="ThreadUserTextBlock" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="16" VerticalAlignment="Center" Margin="49,6,0,0"/>
+            <Grid>
+                <Button x:Name="SettingsImageButton" Click="SettingsImageButton_Click" Margin="0,0,205,0" BorderBrush="{x:Null}" Background="{x:Null}">
+                <Image x:Name="SettingsImage" Source="Cog-512.png" HorizontalAlignment="Center" VerticalAlignment="Center" Width="50" Height="50"/>
+                </Button>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

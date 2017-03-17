@@ -23,16 +23,14 @@ namespace MessengerWPF
     /// </summary>
     public partial class MainWindow 
     {
-        readonly EmployeeCollection _empcol = new EmployeeCollection();
-        readonly BackgroundWorker ThreadLoader = new BackgroundWorker();
-        readonly BackgroundWorker ThreadFinder = new BackgroundWorker();
-        readonly DispatcherTimer ThreadRefreshTimer = new DispatcherTimer();
-        readonly DispatcherTimer RefreshLatestThread = new DispatcherTimer();
-        readonly DispatcherTimer ThreadContactLoader = new DispatcherTimer();
-
-
+        #region Variables
+        private EmployeeCollection _empcol = new EmployeeCollection();
+        private BackgroundWorker ThreadLoader = new BackgroundWorker();
+        private BackgroundWorker ThreadFinder = new BackgroundWorker();
+        private DispatcherTimer ThreadRefreshTimer = new DispatcherTimer();
+        private DispatcherTimer RefreshLatestThread = new DispatcherTimer();
+        private DispatcherTimer ThreadContactLoader = new DispatcherTimer();
         private Dictionary<string, string> CurrentThreads = new Dictionary<string, string>();
-
         /// <summary>
         /// This Dictionary uses the ThreadID as the key and provides a list of users
         /// </summary>
@@ -46,7 +44,8 @@ namespace MessengerWPF
         private int _currentThread = -1;
         private int LatestThreadID = -1;
         private int LastMessageInThread = -1;
-#region Program Load Functions
+        #endregion
+        #region Program Load Functions
         public MainWindow()
         {
             AuthdEmployee = null;
@@ -98,7 +97,7 @@ namespace MessengerWPF
 
 
         #endregion
-#region Timers
+        #region Timers
         private void ThreadContactLoader_Tick(object sender, EventArgs e)
         {
             LoadThreads();
@@ -122,8 +121,8 @@ namespace MessengerWPF
                 ProcessThreadID(_currentThread);
             }
         }
-#endregion
-#region Load Menu Data
+        #endregion
+        #region Load Menu Data
         private void ThreadLoader_DoWork(object sender, DoWorkEventArgs e)
         {
             try
@@ -190,8 +189,8 @@ namespace MessengerWPF
                 }
             }
         }
-#endregion
-#region "Process Threads"
+        #endregion
+        #region "Process Threads"
         private void ProcessThreadID(int ThreadID, bool FirstLoad=false,int AmountToLoad=100)
         {
            
@@ -403,7 +402,7 @@ namespace MessengerWPF
 
 
                 var LastMessage = MSSQLPublic.SelectData("SELECT TOP 1 * from whldata.messenger_messages WHERE threadid like'" + ThreadID.ToString() + "' ORDER BY messageid desc") as ArrayList;
-                if (LastMessage != null)
+                if (LastMessage != null && LastMessage.Count > 0)
                 {
                     try
                     {
@@ -427,7 +426,7 @@ namespace MessengerWPF
             Process.Start(e.Uri.ToString());
         }
         #endregion
-#region "Notification Handling"
+        #region Notification Handling
 
         private Stopwatch NotiStopwatch = new Stopwatch();
         private void ThreadFinder_DoWork(object sender, DoWorkEventArgs e)
@@ -498,7 +497,7 @@ namespace MessengerWPF
             
             }
         }
-#endregion
+        #endregion
 #region Click Events
         private void HandleNoti(object sender, NotificationComponent e)
         {
@@ -631,12 +630,10 @@ namespace MessengerWPF
             if (!(CheckForUserInThread(ThreadID,EmployeeID)))
             {
                MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_threads(ThreadID, participantid,IsTwoWay) VALUES('" + ThreadID.ToString() + "', '" + EmployeeID.ToString() + "',0);");
-               MSSQLPublic.insertUpdate("UPDATE whldata.messenger_threads SET IsTwoWay=1 WHERE threadid='"+ThreadID.ToString()+"'");
-               LoadContactInfo();
+               MSSQLPublic.insertUpdate("UPDATE whldata.messenger_threads SET IsTwoWay=0 WHERE threadid='"+ThreadID.ToString()+"'");
+               LoadThreads();
             }
         }
-
-
         private void CreateNewThread(int EmployeeID)
         {
             var CheckForTwoWay = MSSQLPublic.SelectData("SELECT * from whldata.messenger_threads WHERE (participantid='"+AuthdEmployee.PayrollId.ToString()+"' OR participantid='"+EmployeeID.ToString()+"') AND IsTwoWay=1") as ArrayList;
@@ -705,6 +702,11 @@ namespace MessengerWPF
         {
             ThreadLoader.CancelAsync();
             ThreadFinder.CancelAsync();
+        }
+
+        private void SettingsImageButton_Click(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }
