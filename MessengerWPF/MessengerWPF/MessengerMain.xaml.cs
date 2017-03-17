@@ -460,22 +460,23 @@ namespace MessengerWPF
         }
         private void ThreadLoader_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            DisplayNotifications(Notifications);
+            if (NotisArrayList.Count > 0) DisplayNotifications(NotisArrayList);
         }
-        private void DisplayNotifications(List<TextOnlyNotification[]> notis)
+        private void DisplayNotifications(List<ArrayList> Notis)
         {
-            List<TextOnlyNotification[]> SafeNotis = notis;
-            foreach (TextOnlyNotification[] Noti in SafeNotis)
+            foreach (ArrayList Noti in Notis)
             {
-                Notification.CreateNotification("Messenger", Noti, 20);
+                TextOnlyNotification[] NotiText = { new TextOnlyNotification(Noti[2].ToString(), HandleNoti) };
+                Notification.CreateNotification("Messenger", NotiText, 20);
             }
+                
 
         }
-        private List<TextOnlyNotification[]> Notifications = new List<TextOnlyNotification[]>();
+        private List<ArrayList> NotisArrayList = new List<ArrayList>();
         private void LoadNotifications()
         {
             Dictionary<int, int> UserLastThreadSafe = UserLastThreadNoti;
-            Notifications.Clear();
+            NotisArrayList.Clear();
             foreach (KeyValuePair<int, int> Threads in UserLastThreadSafe)
             {
                 if (Threads.Key == _currentThread) continue;
@@ -483,8 +484,9 @@ namespace MessengerWPF
                 if (LatestMessage == null || LatestMessage.Count == 0) continue;
                 foreach (ArrayList Result in LatestMessage)
                 {
-                    TextOnlyNotification[] NotiText = { new TextOnlyNotification(Result[2].ToString(), HandleNoti) };
-                    Notifications.Add(NotiText);
+                    if (Result[1].ToString() == AuthdEmployee.PayrollId.ToString()) continue;
+                    NotisArrayList.Add(Result);
+
                 }
             
             }
