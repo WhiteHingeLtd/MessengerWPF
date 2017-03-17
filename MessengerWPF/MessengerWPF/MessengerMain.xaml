@@ -6,18 +6,15 @@
 
         mc:Ignorable="d"
         Title="Messenger" Height="700" Width="900" Background="{x:Null}" Loaded="Messenger_Loaded" Closed="Messenger_Closed">
-    
+
     <Grid Background="White">
-        
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="261*"/>
             <ColumnDefinition Width="632*"/>
         </Grid.ColumnDefinitions>
 
         <Grid x:Name="ThreadsGrid" HorizontalAlignment="Left" Margin="0,56,0,0" Width="261">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
             <TabControl SelectionChanged="TabControl_SelectionChanged" Margin="0,0,0,0.5">
                 <TabItem x:Name="ThreadsTab" Header="Messages">
                     <Grid Background="#FFE5E5E5">
@@ -46,7 +43,7 @@
                 <ColumnDefinition Width="509*"/>
                 <ColumnDefinition Width="122*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer x:Name="MessageScrollviewer" Margin="0,0,0,40" Padding="5,5,5,0" PanningMode="VerticalOnly" Grid.ColumnSpan="2" Grid.RowSpan="2">
+            <ScrollViewer x:Name="MessageScrollviewer" Margin="0,0,0,40.5" Padding="5,5,5,0" PanningMode="VerticalOnly" Grid.ColumnSpan="2" Grid.RowSpan="2">
                 <StackPanel x:Name="MessageStack" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
             </ScrollViewer>
             <TextBox x:Name="TypeBox" TextWrapping="Wrap" Padding="2" Grid.Row="1" Margin="0,0,0,4" VerticalContentAlignment="Center" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>
@@ -60,7 +57,7 @@
             <Grid>
                 <Image x:Name="SettingsImage" Source="Cog-512.png" Margin="0,0,211,0.5" Width="50"/>
             </Grid>
-            <TextBlock x:Name="ThreadUserTextBlock" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" Width="518" FontSize="16" Height="50" VerticalAlignment="Top"/>
+            <TextBlock x:Name="ThreadUserTextBlock" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="16" VerticalAlignment="Center" Margin="49,6,0,0"/>
         </Grid>
     </Grid>
 </Window>
