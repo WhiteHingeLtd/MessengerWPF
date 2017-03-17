@@ -428,8 +428,12 @@ namespace MessengerWPF
         }
         #endregion
 #region "Notification Handling"
+
+        private Stopwatch NotiStopwatch = new Stopwatch();
         private void ThreadFinder_DoWork(object sender, DoWorkEventArgs e)
         {
+            NotiStopwatch.Reset();
+            NotiStopwatch.Start();
             CurrentThreads.Clear();
             var Threads = MSSQLPublic.SelectData("SELECT threadid from whldata.messenger_threads WHERE participantid='" + AuthdEmployee.PayrollId.ToString() + "'ORDER BY threadid desc") as ArrayList;
             if (Threads != null)
@@ -461,6 +465,8 @@ namespace MessengerWPF
         private void ThreadLoader_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (NotisArrayList.Count > 0) DisplayNotifications(NotisArrayList);
+            NotiStopwatch.Stop();
+            Console.WriteLine(NotiStopwatch.ElapsedMilliseconds);
         }
         private void DisplayNotifications(List<ArrayList> Notis)
         {
@@ -475,6 +481,7 @@ namespace MessengerWPF
         private List<ArrayList> NotisArrayList = new List<ArrayList>();
         private void LoadNotifications()
         {
+            System.Threading.Thread.Sleep(1000);
             Dictionary<int, int> UserLastThreadSafe = UserLastThreadNoti;
             NotisArrayList.Clear();
             foreach (KeyValuePair<int, int> Threads in UserLastThreadSafe)
