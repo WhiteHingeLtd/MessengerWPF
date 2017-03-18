@@ -43,7 +43,7 @@
                 <ColumnDefinition Width="509*"/>
                 <ColumnDefinition Width="122*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer x:Name="MessageScrollviewer" Margin="0,0,0,40.5" Padding="5,5,5,0" PanningMode="VerticalOnly" Grid.ColumnSpan="2" Grid.RowSpan="2">
+            <ScrollViewer x:Name="MessageScrollviewer" Margin="0,0,0,40.5" Padding="5,5,5,0" PanningMode="VerticalOnly" Grid.ColumnSpan="2" Grid.RowSpan="2" Background="#FFF0F0F0">
                 <StackPanel x:Name="MessageStack" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
             </ScrollViewer>
             <TextBox x:Name="TypeBox" TextWrapping="Wrap" Padding="2" Grid.Row="1" Margin="0,0,0,4" VerticalContentAlignment="Center" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>

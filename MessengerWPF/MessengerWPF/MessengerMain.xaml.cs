@@ -195,7 +195,7 @@ namespace MessengerWPF
         {
            
             GC.Collect();
-            var QueryResults = new ArrayList();
+            var QueryResults = null as ArrayList;
             try
             { 
                 if(FirstLoad)
@@ -220,7 +220,9 @@ namespace MessengerWPF
             { }
             try
             {
+                
                 if (QueryResults == null) throw new Exception("SQL Query Failed");
+                if (QueryResults.Count == 0) return;
                 foreach (ArrayList result in QueryResults)
                 {
                     string message = result[2].ToString().ToLower();
@@ -644,7 +646,15 @@ namespace MessengerWPF
                 MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_threads (ThreadID, participantid,IsTwoWay) VALUES (" + NewThread.ToString() + "," + AuthdEmployee.PayrollId.ToString() + ",1)");
                 MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_threads (ThreadID, participantid,IsTwoWay) VALUES (" + NewThread.ToString() + "," + EmployeeID.ToString() + ",1)");
                 _currentThread = NewThread;
+                MessageStack.Children.Clear();
+                LoadThreads();
             }
+        }
+
+        private void RemoveFromThread(int ThreadID, int employeeid)
+        {
+            MSSQLPublic.insertUpdate("DELETE FROM whldata.messenger_threads WHERE threadid='"+ThreadID.ToString()+ "' AND participantid = '"+employeeid.ToString()+"';");
+            MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_messages  (participantid,messagecontent,timestamp,threadid) VALUES (0,N'"+ _empcol.FindEmployeeByID(employeeid).FullName + " has been removed from the thread',Current_timestamp,'" + ThreadID.ToString() + ")");
         }
 #endregion
 #region Functions
@@ -706,7 +716,7 @@ namespace MessengerWPF
 
         private void SettingsImageButton_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(); //It's a feature
         }
     }
 }

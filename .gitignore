@@ -51,3 +51,6 @@ MessengerWPF/MessengerWPF/bin/*
 MessengerWPF/MessengerWPF/SPC.pfx
 *.suo
 *.tmp
+*.dll
+MessengerWPF/MessengerWPFTests/*
+MessengerWPF/MessengerWPF.Tests/*
