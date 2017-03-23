@@ -30,6 +30,7 @@ namespace MessengerWPF
         private DispatcherTimer ThreadRefreshTimer = new DispatcherTimer();
         private DispatcherTimer RefreshLatestThread = new DispatcherTimer();
         private DispatcherTimer ThreadContactLoader = new DispatcherTimer();
+        
         private Dictionary<string, string> CurrentThreads = new Dictionary<string, string>();
         /// <summary>
         /// This Dictionary uses the ThreadID as the key and provides a list of users
@@ -44,6 +45,7 @@ namespace MessengerWPF
         private int _currentThread = -1;
         private int LatestThreadID = -1;
         private int LastMessageInThread = -1;
+        private bool PauseMessageRefreshing = false;
         #endregion
         #region Program Load Functions
         public MainWindow()
@@ -71,6 +73,11 @@ namespace MessengerWPF
                 var loginwindow = new Login();
                 loginwindow.ShowDialog();
             }      
+            while (AuthdEmployee == null)
+            {
+                var loginwindow = new Login();
+                loginwindow.ShowDialog();
+            }
             ThreadLoader.DoWork += ThreadLoader_DoWork;
             ThreadLoader.WorkerSupportsCancellation = true;
             ThreadLoader.RunWorkerAsync();
@@ -116,7 +123,7 @@ namespace MessengerWPF
         }
         private void RefreshTimer_Tick(object sender, EventArgs e)
         {
-            if (_currentThread != -1)
+            if (_currentThread != -1 && !(PauseMessageRefreshing))
             {
                 ProcessThreadID(_currentThread);
             }
@@ -144,20 +151,21 @@ namespace MessengerWPF
             ThreadsPanel.Children.Clear();
             try
             {
-                var ThreadListQuery = MSSQLPublic.SelectData("SELECT a.*,b.messagecontent as Message,b.Timestamp as SendTime,b.participantid as sender FROM 	whldata.messenger_threads a Left Join (SELECT m1.* FROM whldata.messenger_messages m1 LEFT JOIN whldata.messenger_messages m2 ON (m1.threadid = m2.threadid AND m1.messageid < m2.messageid) WHERE m2.messageid IS NULL) b on b.threadid=a.ThreadID WHERE (a.participantid='" + AuthdEmployee.PayrollId.ToString() + "') ORDER BY b.timestamp DESC;") as ArrayList;
+                var ThreadListQuery = MSSQLPublic.SelectDataDictionary("SELECT a.*,b.messagecontent as Message,b.Timestamp as SendTime,b.participantid as sender FROM 	whldata.messenger_threads a Left Join (SELECT m1.* FROM whldata.messenger_messages m1 LEFT JOIN whldata.messenger_messages m2 ON (m1.threadid = m2.threadid AND m1.messageid < m2.messageid) WHERE m2.messageid IS NULL) b on b.threadid=a.ThreadID WHERE (a.participantid='" + AuthdEmployee.PayrollId.ToString() + "') ORDER BY b.timestamp DESC;") as List<Dictionary<String,object>>;
                 if (ThreadListQuery == null) throw new Exception("SQL Query Failed");
-                foreach (ArrayList Result in ThreadListQuery)
+                foreach (Dictionary<string,object> Result in ThreadListQuery)
                 {
-                    var CheckList = CheckThreadUsers(Int32.Parse(Result[1].ToString()));
+                    var CheckList = CheckThreadUsers(Int32.Parse(Result["ThreadID"].ToString()));
                     if (CheckList.Count > 0)
                     {
                         var refcontrol = new ThreadControl();
-                        refcontrol.ThreadID = Int32.Parse(Result[1].ToString());
+                        refcontrol.ThreadID = Int32.Parse(Result["ThreadID"].ToString());
                         refcontrol.ThreadUsers.Text = "";
                         foreach (String User in CheckList)
                         {
                             refcontrol.ThreadUsers.Text += User + " ";
                         }
+                        refcontrol.LastMessage.Text = Result["Message"].ToString();
                         refcontrol.MouseUp += HandleThreadClick;
                         refcontrol.InitializeComponent();
                         ThreadsPanel.Children.Add(refcontrol);
@@ -288,6 +296,13 @@ namespace MessengerWPF
                             Msg.InitializeComponent();
                             MessageStack.Children.Add(Msg);
                         }
+                        else if (result[1].ToString() == "0")
+                        {
+                            var Msg = new SystemNotiControl();
+                            Msg.SystemNoti.Text = result[2].ToString();
+                            Msg.InitializeComponent();
+                            MessageStack.Children.Add(Msg);
+                        }
                         else if (result[1].ToString() != AuthdEmployee.PayrollId.ToString())
                         {
                             var Msg = new OtherMessage();
@@ -349,6 +364,13 @@ namespace MessengerWPF
                         Msg.InitializeComponent();
                         MessageStack.Children.Add(Msg);
                     }
+                    else if (result[1].ToString() == "0")
+                    {
+                        var Msg = new SystemNotiControl();
+                        Msg.SystemNoti.Text = result[2].ToString();
+                        Msg.InitializeComponent();
+                        MessageStack.Children.Add(Msg);
+                    }
                     else if (result[1].ToString() != AuthdEmployee.PayrollId.ToString())
                     {
                         var Msg = new OtherMessage();
@@ -363,8 +385,7 @@ namespace MessengerWPF
                             {
                                 new TextOnlyNotification(result[2].ToString(), HandleNoti)
                             };
-                            NotificationReturnable NotiReturn = Notification.CreateNotification("Messenger", NotiText,
-                                20);
+                            NotificationReturnable NotiReturn = Notification.CreateNotification("Messenger", NotiText,20);
 
                         }
                     }
@@ -716,7 +737,12 @@ namespace MessengerWPF
 
         private void SettingsImageButton_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException(); //It's a feature
+            //throw new NotImplementedException("It's a feature"); //It's a feature
+        }
+
+        private void OptionsClose_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

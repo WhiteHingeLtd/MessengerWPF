@@ -6,6 +6,37 @@
 
         mc:Ignorable="d"
         Title="Messenger" Height="700" Width="900" Background="{x:Null}" Loaded="Messenger_Loaded" Closed="Messenger_Closed">
+    <Window.Resources>
+        <Storyboard x:Key="OptionsOpen">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="grid">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="57">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CubicEase EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Key="OptionsClose">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="grid">
+                <EasingDoubleKeyFrame KeyTime="0" Value="57"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CubicEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </Window.Resources>
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
+        <EventTrigger RoutedEvent="ButtonBase.Click" SourceName="SettingsImageButton">
+            <BeginStoryboard x:Name="OptionsOpen_BeginStoryboard" Storyboard="{StaticResource OptionsOpen}"/>
+        </EventTrigger>
+        <EventTrigger RoutedEvent="ButtonBase.Click" SourceName="OptionsCloseButton">
+            <BeginStoryboard x:Name="OptionsClose_BeginStoryboard" Storyboard="{StaticResource OptionsClose}"/>
+        </EventTrigger>
+    </Window.Triggers>
 
     <Grid Background="White">
 
@@ -57,9 +88,20 @@
             <TextBlock x:Name="ThreadUserTextBlock" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="16" VerticalAlignment="Center" Margin="49,6,0,0"/>
             <Grid>
                 <Button x:Name="SettingsImageButton" Click="SettingsImageButton_Click" Margin="0,0,205,0" BorderBrush="{x:Null}" Background="{x:Null}">
-                <Image x:Name="SettingsImage" Source="Cog-512.png" HorizontalAlignment="Center" VerticalAlignment="Center" Width="50" Height="50"/>
+                    <Image x:Name="SettingsImage" Source="Cog-512.png" HorizontalAlignment="Center" VerticalAlignment="Center" Width="50" Height="50"/>
                 </Button>
             </Grid>
+        </Grid>
+        <Grid x:Name="grid" Height="57" Margin="0,-57,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Background="Black">
+            <Grid.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Grid.RenderTransform>
+            <Button x:Name="OptionsCloseButton" Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="43" Height="32" Click="OptionsClose_Click"/>
         </Grid>
     </Grid>
 </Window>

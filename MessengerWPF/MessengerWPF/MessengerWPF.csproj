@@ -120,6 +120,9 @@
     <Compile Include="UserControls\SelfMessage.xaml.cs">
       <DependentUpon>SelfMessage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\SystemNotiControl.xaml.cs">
+      <DependentUpon>SystemNotiControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ThreadControl.xaml.cs">
       <DependentUpon>ThreadControl.xaml</DependentUpon>
     </Compile>
@@ -162,6 +165,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\SelfMessage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\SystemNotiControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
