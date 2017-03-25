@@ -8,18 +8,20 @@
         Title="Messenger" Height="700" Width="900" Background="{x:Null}" Loaded="Messenger_Loaded" Closed="Messenger_Closed">
     <Window.Resources>
         <Storyboard x:Key="OptionsOpen">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="grid">
+
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="OptionsGrid">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="57">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="56">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <CubicEase EasingMode="EaseOut"/>
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
+
         </Storyboard>
         <Storyboard x:Key="OptionsClose">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="grid">
-                <EasingDoubleKeyFrame KeyTime="0" Value="57"/>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="OptionsGrid">
+                <EasingDoubleKeyFrame KeyTime="0" Value="56"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="0">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <CubicEase EasingMode="EaseIn"/>
@@ -29,9 +31,8 @@
         </Storyboard>
     </Window.Resources>
     <Window.Triggers>
-        <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
         <EventTrigger RoutedEvent="ButtonBase.Click" SourceName="SettingsImageButton">
-            <BeginStoryboard x:Name="OptionsOpen_BeginStoryboard" Storyboard="{StaticResource OptionsOpen}"/>
+            <BeginStoryboard Storyboard="{StaticResource OptionsOpen}"/>
         </EventTrigger>
         <EventTrigger RoutedEvent="ButtonBase.Click" SourceName="OptionsCloseButton">
             <BeginStoryboard x:Name="OptionsClose_BeginStoryboard" Storyboard="{StaticResource OptionsClose}"/>
@@ -87,12 +88,12 @@
             </Grid.ColumnDefinitions>
             <TextBlock x:Name="ThreadUserTextBlock" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="16" VerticalAlignment="Center" Margin="49,6,0,0"/>
             <Grid>
-                <Button x:Name="SettingsImageButton" Click="SettingsImageButton_Click" Margin="0,0,205,0" BorderBrush="{x:Null}" Background="{x:Null}">
+                <Button x:Name="SettingsImageButton" Click="SettingsImageButton_Click" Margin="0,0,205,0" BorderBrush="{x:Null}" Background="{x:Null}" Style="{DynamicResource Button.OverButton}">
                     <Image x:Name="SettingsImage" Source="Cog-512.png" HorizontalAlignment="Center" VerticalAlignment="Center" Width="50" Height="50"/>
                 </Button>
             </Grid>
         </Grid>
-        <Grid x:Name="grid" Height="57" Margin="0,-57,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Background="Black">
+        <Grid x:Name="OptionsGrid" Height="57" Margin="0,-57,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
             <Grid.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform/>
@@ -101,7 +102,11 @@
                     <TranslateTransform/>
                 </TransformGroup>
             </Grid.RenderTransform>
-            <Button x:Name="OptionsCloseButton" Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="43" Height="32" Click="OptionsClose_Click"/>
+            <Button x:Name="OptionsCloseButton" HorizontalAlignment="Left" VerticalAlignment="Top" Width="43" Height="32" Click="OptionsClose_Click" Foreground="{x:Null}" BorderBrush="{x:Null}" Style="{DynamicResource Button.OverButton}">
+                <Button.Background>
+                    <ImageBrush ImageSource="close-icon.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
         </Grid>
     </Grid>
 </Window>

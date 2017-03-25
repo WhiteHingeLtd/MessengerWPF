@@ -386,7 +386,6 @@ namespace MessengerWPF
                                 new TextOnlyNotification(result[2].ToString(), HandleNoti)
                             };
                             NotificationReturnable NotiReturn = Notification.CreateNotification("Messenger", NotiText,20);
-
                         }
                     }
 
@@ -737,12 +736,13 @@ namespace MessengerWPF
 
         private void SettingsImageButton_Click(object sender, RoutedEventArgs e)
         {
+            SettingsImageButton.Visibility = Visibility.Collapsed;
             //throw new NotImplementedException("It's a feature"); //It's a feature
         }
 
         private void OptionsClose_Click(object sender, RoutedEventArgs e)
         {
-
+            SettingsImageButton.Visibility = Visibility.Visible;
         }
     }
 }

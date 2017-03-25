@@ -6,8 +6,8 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid HorizontalAlignment="Right">
-        <Border BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Top" Background="#FF422FFF" CornerRadius="8">
-            <Image x:Name="ImageContainer" HorizontalAlignment="Right" Margin="1,1,1,0" VerticalAlignment="Top" MaxWidth="480" MaxHeight="320" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
+        <Border BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Top" Background="#FF422FFF" CornerRadius="8" ClipToBounds="True">
+            <Image x:Name="ImageContainer" HorizontalAlignment="Right" Margin="1,1,1,0" VerticalAlignment="Top" MaxWidth="480" MaxHeight="320" ScrollViewer.VerticalScrollBarVisibility="Hidden" ClipToBounds="True"/>
         </Border>
 
     </Grid>
