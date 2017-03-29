@@ -43,8 +43,8 @@ namespace MessengerWPF
         
         public static Employee AuthdEmployee = new Employee();
         private int _currentThread = -1;
-        private int LatestThreadID = -1;
-        private int LastMessageInThread = -1;
+        private int _latestThreadId = -1;
+        private int lastMessageInThread = -1;
         private bool PauseMessageRefreshing = false;
         #endregion
         #region Program Load Functions
@@ -138,7 +138,7 @@ namespace MessengerWPF
             if (LastThread == null) throw new Exception("SQL Query Failed");
             var Meme = LastThread[0] as ArrayList;
             if (Meme == null) throw new Exception("SQL Query Failed");
-            LatestThreadID = Convert.ToInt32(Meme[0]);
+            _latestThreadId = Convert.ToInt32(Meme[0]);
             }
             catch (Exception Ex)
             {
@@ -213,12 +213,12 @@ namespace MessengerWPF
                     query.Reverse();
                     QueryResults = query;
                 
-                    LastMessageInThread = -1;
+                    lastMessageInThread = -1;
                     MessageStack.Children.Clear();
                 }
                 else
                 {
-                    var query = MSSQLPublic.SelectData("SELECT TOP " + AmountToLoad.ToString() + " * from whldata.messenger_messages WHERE threadid like'" + ThreadID.ToString() + "' AND messageid > '"+ LastMessageInThread.ToString() + "' ORDER BY messageid desc") as ArrayList;
+                    var query = MSSQLPublic.SelectData("SELECT TOP " + AmountToLoad.ToString() + " * from whldata.messenger_messages WHERE threadid like'" + ThreadID.ToString() + "' AND messageid > '"+ lastMessageInThread.ToString() + "' ORDER BY messageid desc") as ArrayList;
                     query.Reverse();
                     QueryResults = query;
 
@@ -428,16 +428,16 @@ namespace MessengerWPF
                 {
                     try
                     {
-                        LastMessageInThread = Convert.ToInt32((LastMessage[0] as ArrayList)[0]);
+                        lastMessageInThread = Convert.ToInt32((LastMessage[0] as ArrayList)[0]);
                     }
                     catch (Exception)
                     {
-                        LastMessageInThread = -1;
+                        lastMessageInThread = -1;
                     }
                     
 
                 }
-                else LastMessageInThread = -1;
+                else lastMessageInThread = -1;
 
             }
             
@@ -456,10 +456,10 @@ namespace MessengerWPF
             NotiStopwatch.Reset();
             NotiStopwatch.Start();
             CurrentThreads.Clear();
-            var Threads = MSSQLPublic.SelectData("SELECT threadid from whldata.messenger_threads WHERE participantid='" + AuthdEmployee.PayrollId.ToString() + "'ORDER BY threadid desc") as ArrayList;
-            if (Threads != null)
+            var threads = MSSQLPublic.SelectData("SELECT threadid from whldata.messenger_threads WHERE participantid='" + AuthdEmployee.PayrollId.ToString() + "'ORDER BY threadid desc") as ArrayList;
+            if (threads != null)
             {
-                foreach (ArrayList Result in Threads)
+                foreach (ArrayList Result in threads)
                 {
                     CurrentThreads.Add(Result[0].ToString(), AuthdEmployee.PayrollId.ToString());
                 }
@@ -467,13 +467,13 @@ namespace MessengerWPF
             UserLastThreadNoti.Clear();
             foreach (KeyValuePair<string, string> entry in CurrentThreads)
             {
-                var LatestMessage = MSSQLPublic.SelectData("SELECT TOP 1 messageid from whldata.messenger_messages WHERE threadid='" + entry.Key + "' ORDER BY messageid desc;") as ArrayList;
-                if (LatestMessage == null || LatestMessage.Count == 0) continue;
+                var latestMessage = MSSQLPublic.SelectData("SELECT TOP 1 messageid from whldata.messenger_messages WHERE threadid='" + entry.Key + "' ORDER BY messageid desc;") as ArrayList;
+                if (latestMessage == null || latestMessage.Count == 0) continue;
                 try
                 {
-                ArrayList Result = LatestMessage[0] as ArrayList;
-                    if (Result == null) continue;
-                UserLastThreadNoti.Add(Convert.ToInt32(entry.Key), Convert.ToInt32(Result[0].ToString()));
+                    var result = latestMessage[0] as ArrayList;
+                    if (result == null) continue;
+                    UserLastThreadNoti.Add(Convert.ToInt32(entry.Key), Convert.ToInt32(result[0].ToString()));
                 }
                 catch (NullReferenceException)
                 {
@@ -503,17 +503,17 @@ namespace MessengerWPF
         private void LoadNotifications()
         {
             System.Threading.Thread.Sleep(1000);
-            Dictionary<int, int> UserLastThreadSafe = UserLastThreadNoti;
+            Dictionary<int, int> userLastThreadSafe = UserLastThreadNoti;
             NotisArrayList.Clear();
-            foreach (KeyValuePair<int, int> Threads in UserLastThreadSafe)
+            foreach (KeyValuePair<int, int> threads in userLastThreadSafe)
             {
-                if (Threads.Key == _currentThread) continue;
-                var LatestMessage = MSSQLPublic.SelectData("SELECT * from whldata.messenger_messages WHERE threadid='"+Threads.Key.ToString()+"' AND messageid > '"+Threads.Value.ToString() + "';") as ArrayList;
-                if (LatestMessage == null || LatestMessage.Count == 0) continue;
-                foreach (ArrayList Result in LatestMessage)
+                if (threads.Key == _currentThread) continue;
+                var latestMessage = MSSQLPublic.SelectData("SELECT * from whldata.messenger_messages WHERE threadid='"+threads.Key.ToString()+"' AND messageid > '"+threads.Value.ToString() + "';") as ArrayList;
+                if (latestMessage == null || latestMessage.Count == 0) continue;
+                foreach (ArrayList result in latestMessage)
                 {
-                    if (Result[1].ToString() == AuthdEmployee.PayrollId.ToString()) continue;
-                    NotisArrayList.Add(Result);
+                    if (result[1].ToString() == AuthdEmployee.PayrollId.ToString()) continue;
+                    NotisArrayList.Add(result);
 
                 }
             
@@ -538,13 +538,13 @@ namespace MessengerWPF
         }
         private void OtherMsg_TouchUp(object sender, TouchEventArgs e)
         {
-            var Control = sender as OtherPictureControl;
-            if (Control != null)
+            var control = sender as OtherPictureControl;
+            if (control != null)
             {
-                var ShowPicture = new ActualPicture();
-                ShowPicture.NewImage.Source = Control.ImageContainer.Source;
-                ShowPicture.InitializeComponent();
-                ShowPicture.Show();
+                var showPicture = new ActualPicture();
+                showPicture.NewImage.Source = control.ImageContainer.Source;
+                showPicture.InitializeComponent();
+                showPicture.Show();
             }
         }
 
@@ -662,7 +662,7 @@ namespace MessengerWPF
             if (CheckForTwoWay == null) throw new Exception("SQL Query Failed");
             if (CheckForTwoWay.Count == 0)
             {
-                int NewThread = LatestThreadID + 1;
+                int NewThread = _latestThreadId + 1;
                 MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_threads (ThreadID, participantid,IsTwoWay) VALUES (" + NewThread.ToString() + "," + AuthdEmployee.PayrollId.ToString() + ",1)");
                 MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_threads (ThreadID, participantid,IsTwoWay) VALUES (" + NewThread.ToString() + "," + EmployeeID.ToString() + ",1)");
                 _currentThread = NewThread;
@@ -743,6 +743,14 @@ namespace MessengerWPF
         private void OptionsClose_Click(object sender, RoutedEventArgs e)
         {
             SettingsImageButton.Visibility = Visibility.Visible;
+        }
+
+        private Int32 DateTimeToUnix(DateTime Time)
+        {
+            var returnstring = 0;
+
+            returnstring = Convert.ToInt32(Time.ToUniversalTime().Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
+            return returnstring;
         }
     }
 }
