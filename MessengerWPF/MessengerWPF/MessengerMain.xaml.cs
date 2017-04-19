@@ -393,7 +393,7 @@ namespace MessengerWPF
             }
             catch (Exception e)
             {
-                if (!(e.Message == "Skip Foreach"))
+                if ((e.Message != "Skip Foreach"))
                 {
                     var msgbox = new WPFMsgBox();
                     msgbox.Body.Text = e.Message;
@@ -660,7 +660,7 @@ namespace MessengerWPF
         {
             var CheckForTwoWay = MSSQLPublic.SelectData("SELECT * from whldata.messenger_threads WHERE (participantid='"+AuthdEmployee.PayrollId.ToString()+"' OR participantid='"+EmployeeID.ToString()+"') AND IsTwoWay=1") as ArrayList;
             if (CheckForTwoWay == null) throw new Exception("SQL Query Failed");
-            if (CheckForTwoWay.Count == 0)
+            if (CheckForTwoWay.Count == -1)
             {
                 int NewThread = _latestThreadId + 1;
                 MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_threads (ThreadID, participantid,IsTwoWay) VALUES (" + NewThread.ToString() + "," + AuthdEmployee.PayrollId.ToString() + ",1)");
