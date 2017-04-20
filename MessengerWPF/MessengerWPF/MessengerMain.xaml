@@ -78,7 +78,7 @@
             <ScrollViewer x:Name="MessageScrollviewer" Margin="0,0,0,40.5" Padding="5,5,5,0" PanningMode="VerticalOnly" Grid.ColumnSpan="2" Grid.RowSpan="2" Background="#FFF0F0F0">
                 <StackPanel x:Name="MessageStack" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
             </ScrollViewer>
-            <TextBox x:Name="TypeBox" TextWrapping="Wrap" Padding="2" Grid.Row="1" Margin="0,0,0,4" VerticalContentAlignment="Center" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>
+            <TextBox x:Name="TypeBox" TextWrapping="Wrap" Padding="2" Grid.Row="1" Margin="0,0,0,4" VerticalContentAlignment="Center" VerticalAlignment="Center" KeyDown="TextBox_KeyDown" MaxLines="4"/>
             <Button x:Name="SendButton" Content="Send" HorizontalContentAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,0,0,4" Click="SendButton_Click"/>
         </Grid>
         <Grid x:Name="TitleGrid" HorizontalAlignment="Left" Height="56" VerticalAlignment="Top" Width="892" Grid.ColumnSpan="2">

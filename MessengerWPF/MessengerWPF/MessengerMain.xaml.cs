@@ -3,9 +3,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -15,6 +17,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using WHLClasses;
 using WHLClasses.Notifications;
+using WHLClasses.SQL.SQLException;
 
 namespace MessengerWPF
 {
@@ -89,8 +92,8 @@ namespace MessengerWPF
             RefreshLatestThread.Tick += RefreshLatestThread_Tick;
             RefreshLatestThread.Start();
 
-            ThreadContactLoader.Interval = new TimeSpan(0, 0, 1, 0);
-            ThreadContactLoader.Tick += ThreadContactLoader_Tick;
+            ThreadContactLoader.Interval = new TimeSpan(0, 0, 0, 30);
+            ThreadContactLoader.Tick += ThreadLoaderTimerTick;
             ThreadContactLoader.Start();
 
             ThreadFinder.DoWork += ThreadFinder_DoWork;
@@ -105,7 +108,7 @@ namespace MessengerWPF
 
         #endregion
         #region Timers
-        private void ThreadContactLoader_Tick(object sender, EventArgs e)
+        private void ThreadLoaderTimerTick(object sender, EventArgs e)
         {
             LoadThreads();
         }
@@ -130,6 +133,11 @@ namespace MessengerWPF
         }
         #endregion
         #region Load Menu Data
+        /// <summary>
+        /// Updates the _latestThreadID for creating new threads.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ThreadLoader_DoWork(object sender, DoWorkEventArgs e)
         {
             try
@@ -145,7 +153,9 @@ namespace MessengerWPF
                 Console.WriteLine(Ex.Message);
             }
         }
-
+        /// <summary>
+        /// Updates the ThreadList
+        /// </summary>
         private void LoadThreads()
         {
             ThreadsPanel.Children.Clear();
@@ -179,6 +189,9 @@ namespace MessengerWPF
             }
            
         }
+        /// <summary>
+        /// Updates the contacts list
+        /// </summary>
         private void LoadContactInfo()
         {
             ContactsPanel.Children.Clear();
@@ -584,7 +597,8 @@ namespace MessengerWPF
             }
         }
 
-        private void TextBox_KeyDown(object sender, KeyEventArgs e)
+        private async void TextBox_KeyDown(object sender, KeyEventArgs e)
+
         {
             if (e.Key == Key.Return)
             {
@@ -592,32 +606,51 @@ namespace MessengerWPF
                 {
                     TypeBox.Text = TypeBox.Text + Environment.NewLine;
                 }
-                if (_currentThread != -1)
+                else if (_currentThread != -1)
                 {
-                    SendMessage(_currentThread, TypeBox.Text);
+                    Task<bool> sendMessageTask = SendMessageasync(_currentThread, TypeBox.Text);
+                    
                     TypeBox.Text = "";
+                    RefreshTimer_Tick(null, null);
+                    ThreadLoaderTimerTick(null, null);
+                    var success = await sendMessageTask;
+                    if (!success) throw new SQLGeneric("Failed to send message");
                 }
             }
         }
-        private void SendMessage(int ThreadID, string Message)
+        private async Task<bool> SendMessageasync(int ThreadID, string Message)
         {
-            string SafeMsg = Message.Replace(";", "");
-            SafeMsg = SafeMsg.Replace("--", "");
-            SafeMsg = SafeMsg.Replace("'", "''");
-            SafeMsg = SafeMsg.Trim();
-            if (SafeMsg != "")
+            try
             {
-                MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_messages (participantid,messagecontent,timestamp,threadid) VALUES (" + AuthdEmployee.PayrollId.ToString() + ",N'" + SafeMsg + "','" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "','" + ThreadID.ToString() + "')");
+                var safeMsg = Message.Replace(";", "");
+                safeMsg = safeMsg.Replace("--", "");
+                safeMsg = safeMsg.Replace("'", "''");
+                safeMsg = safeMsg.Trim();
+                if (safeMsg != "")
+                {
+                    MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_messages (participantid,messagecontent,timestamp,threadid) VALUES (" + AuthdEmployee.PayrollId.ToString() + ",N'" + safeMsg + "','" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "','" + ThreadID.ToString() + "')");
+                }
+                return true;
             }
-            RefreshTimer_Tick(null, null);
+            catch (Exception)
+            {
+                return false;
+            }
+
+
         }
 
-        private void SendButton_Click(object sender, RoutedEventArgs e)
+        private async void SendButton_Click(object sender, RoutedEventArgs e)
         {
             if (_currentThread != -1)
-                {
-                SendMessage(_currentThread, TypeBox.Text);
+            {
+                var sendMessageTask = SendMessageasync(_currentThread, TypeBox.Text);
+
                 TypeBox.Text = "";
+                RefreshTimer_Tick(null, null);
+                ThreadLoaderTimerTick(null, null);
+                var success = await sendMessageTask;
+                if (!success) throw new SQLGeneric("Failed to send message");
             }
         }
 
@@ -643,7 +676,7 @@ namespace MessengerWPF
         {
             var control = sender as Button;
             var parent = FindParent<ContactControl>(control);
-            AddToThread(_currentThread, parent.EmployeeID);
+            if (_currentThread != -1) AddToThread(_currentThread, parent.EmployeeID);
         }
         #endregion
 #region Thread Controller
@@ -658,9 +691,9 @@ namespace MessengerWPF
         }
         private void CreateNewThread(int EmployeeID)
         {
-            var CheckForTwoWay = MSSQLPublic.SelectData("SELECT * from whldata.messenger_threads WHERE (participantid='"+AuthdEmployee.PayrollId.ToString()+"' OR participantid='"+EmployeeID.ToString()+"') AND IsTwoWay=1") as ArrayList;
+            var CheckForTwoWay = MSSQLPublic.SelectData("SELECT * from whldata.messenger_threads f where f.participantid ='" + AuthdEmployee.PayrollId.ToString()+ "' AND exists(SELECT * from whldata.messenger_threads s WHERE s.participantid = '" + EmployeeID.ToString()+ "' AND s.threadid = f.threadid) AND f.IsTwoWay = 1") as ArrayList;
             if (CheckForTwoWay == null) throw new Exception("SQL Query Failed");
-            if (CheckForTwoWay.Count == -1)
+            if (CheckForTwoWay.Count == 0)
             {
                 int NewThread = _latestThreadId + 1;
                 MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_threads (ThreadID, participantid,IsTwoWay) VALUES (" + NewThread.ToString() + "," + AuthdEmployee.PayrollId.ToString() + ",1)");
@@ -685,6 +718,12 @@ namespace MessengerWPF
             if (Results.Count > 0) return true;
             else return false;
         }
+        /// <summary>
+        /// This function returns a list of Users in the thread
+        /// </summary>
+        /// <param name="ThreadID">The ID of the thread</param>
+        /// <param name="ignoreself">Boolean to check if the function should ignore the user</param>
+        /// <returns>A list of users in the specified thread</returns>
         private List<string> CheckThreadUsers(int ThreadID, bool ignoreself = true)
         {
             var ReturnList = new List<string>();
@@ -714,6 +753,12 @@ namespace MessengerWPF
             }
             return ReturnList;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T">The required type</typeparam>
+        /// <param name="child">The current UI Object</param>
+        /// <returns>The specified UI element</returns>
         public static T FindParent<T>(DependencyObject child) where T : DependencyObject
         {
             //get parent item
