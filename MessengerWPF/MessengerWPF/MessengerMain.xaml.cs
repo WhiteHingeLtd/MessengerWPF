@@ -162,12 +162,12 @@ namespace MessengerWPF
                 if (threadListQuery == null) throw new Exception("SQL Query Failed");
                 foreach (var result in threadListQuery)
                 {
-                    var checkList = CheckThreadUsers(int.Parse(result["threadId"].ToString()));
+                    var checkList = CheckThreadUsers(int.Parse(result["threadid"].ToString()));
                     if (checkList.Count > 0)
                     {
                         var refcontrol = new ThreadControl
                         {
-                            ThreadID = int.Parse(result["threadId"].ToString())
+                            ThreadID = int.Parse(result["threadid"].ToString())
                             
                         };
                         refcontrol.ThreadUsers.Text = "";
@@ -175,7 +175,7 @@ namespace MessengerWPF
                         {
                             refcontrol.ThreadUsers.Text += user + " ";
                         }
-                        refcontrol.LastMessage.Text = result["Message"].ToString();
+                        refcontrol.LastMessage.Text = result["message"].ToString();
                         refcontrol.MouseUp += HandleThreadClick;
                         refcontrol.InitializeComponent();
                         ThreadsPanel.Children.Add(refcontrol);
