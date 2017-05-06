@@ -122,10 +122,12 @@ namespace MessengerWPF
 
         private void _currentStatusChecker_Tick(object sender, EventArgs e)
         {
+            var wasOffline = false;
             try
             {
                 while (!MSSQLPublic.TestConn())
                 {
+                    wasOffline = true;
                     _threadContactLoader.Stop();
                     _threadLoader.CancelAsync();
                     _threadRefreshTimer.Stop();
@@ -140,11 +142,15 @@ namespace MessengerWPF
             }
             finally
             {
-                _threadContactLoader.Start();
-                _threadLoader.RunWorkerAsync();
-                _threadRefreshTimer.Start();
-                _refreshLatestThread.Start();
-                _threadFinder.RunWorkerAsync();
+                if (wasOffline)
+                {
+                    _threadContactLoader.Start();
+                    _threadLoader.RunWorkerAsync();
+                    _threadRefreshTimer.Start();
+                    _refreshLatestThread.Start();
+                    _threadFinder.RunWorkerAsync();
+                }
+
             }
 
         }
@@ -159,7 +165,7 @@ namespace MessengerWPF
         private void _SqLiteWriter_DoWork(object sender, DoWorkEventArgs e)
         {
             var messageQuery = "SELECT * from whldata.messenger_messages WHERE threadID = 0 ";
-            var threadQuery = "SELECT * from whldata.messenger_threads where threadid = " +
+            var threadQuery = "SELECT * from whldata.messenger_threads where participantid = " +
                               AuthdEmployee.PayrollId.ToString() + ";";
             foreach (var pair in _currentThreads)
             {
@@ -170,7 +176,7 @@ namespace MessengerWPF
             foreach (var result in results)
             {
                 var query =
-                    "INSERT INTO messenger_messages (messageid,participantid,messagecontent,timestamp,threadid) VALUES ('" +
+                    "REPLACE INTO messenger_messages (messageid,participantid,messagecontent,timestamp,threadid) VALUES ('" +
                     result["messageid"].ToString() + "','" + result["participantid"].ToString() + "','" +
                     result["messagecontent"] + "','" + result["timestamp"].ToString() + "','" + result["threadid"].ToString()+"');";
                 Console.WriteLine(SqLite.SqLiteInsertupdate(query));
@@ -178,7 +184,7 @@ namespace MessengerWPF
             foreach (var result in threadresults)
             {
                 var query =
-                    "INSERT INTO messenger_messages (idmessenger_threads,threadid,participantid, notified,istwoway) VALUES ('" +
+                    "REPLACE INTO messenger_messages (idmessenger_threads,threadid,participantid, notified,istwoway) VALUES ('" +
                     result["idmessenger_threads"].ToString() + "','" + result["threadid"].ToString() + "','" +
                     result["participantid"].ToString() + "','" + result["notified"].ToString() + "','" + result["istwoway"].ToString() +
                     "');";
@@ -312,6 +318,7 @@ namespace MessengerWPF
         {
            
             GC.Collect();
+            
             var queryResults = null as ArrayList;
             try
             { 
