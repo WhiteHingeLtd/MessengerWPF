@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using MessengerWPF.MessageStorage;
 using WHLClasses;
 using WHLClasses.Notifications;
 using WHLClasses.SQL.SQLException;
@@ -29,9 +31,11 @@ namespace MessengerWPF
         private EmployeeCollection _empcol = new EmployeeCollection();
         private BackgroundWorker _threadLoader = new BackgroundWorker();
         private BackgroundWorker _threadFinder = new BackgroundWorker();
+        private BackgroundWorker _SqLiteWriter = new BackgroundWorker();
         private DispatcherTimer _threadRefreshTimer = new DispatcherTimer();
         private DispatcherTimer _refreshLatestThread = new DispatcherTimer();
         private DispatcherTimer _threadContactLoader = new DispatcherTimer();
+        private DispatcherTimer _currentStatusChecker = new DispatcherTimer();
         
         private Dictionary<string, string> _currentThreads = new Dictionary<string, string>();
         /// <summary>
@@ -44,10 +48,13 @@ namespace MessengerWPF
         private Dictionary<int, int> _userLastThreadNoti = new Dictionary<int, int>(); 
         
         public static Employee AuthdEmployee = new Employee();
+        public bool IsOffline;
         private int _currentThread = -1;
         private int _latestThreadId = -1;
         private int _lastMessageInThread = -1;
         private bool PauseMessageRefreshing = false;
+        
+        private bool updateSqLiteDb;
         #endregion
         #region Program Load Functions
         public MainWindow()
@@ -78,6 +85,8 @@ namespace MessengerWPF
                 var loginwindow = new Login();
                 loginwindow.ShowDialog();
             }
+            IsOffline = MSSQLPublic.TestConn();
+
             _threadLoader.DoWork += ThreadLoader_DoWork;
             _threadLoader.WorkerSupportsCancellation = true;
             _threadLoader.RunWorkerAsync();
@@ -97,10 +106,86 @@ namespace MessengerWPF
             _threadFinder.RunWorkerCompleted += ThreadLoader_RunWorkerCompleted;
             _threadFinder.WorkerSupportsCancellation = true;
 
-            LoadThreads();
+            _SqLiteWriter.DoWork += _SqLiteWriter_DoWork;
+            _SqLiteWriter.RunWorkerCompleted += _SqLiteWriter_RunWorkerCompleted;
+
+            _currentStatusChecker.Tick += _currentStatusChecker_Tick;
+            _currentStatusChecker.Interval = new TimeSpan(1000);
+            _currentStatusChecker.Start();
+
+            LoadThreads(); //Load the thread data
             TypeBox.IsReadOnly = true;
             LoadContactInfo();
+            SqLite.PrepareDb();
+            updateSqLiteDb = true;
         }
+
+        private void _currentStatusChecker_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                while (!MSSQLPublic.TestConn())
+                {
+                    _threadContactLoader.Stop();
+                    _threadLoader.CancelAsync();
+                    _threadRefreshTimer.Stop();
+                    _refreshLatestThread.Stop();
+                    _threadFinder.CancelAsync();
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+
+            }
+            finally
+            {
+                _threadContactLoader.Start();
+                _threadLoader.RunWorkerAsync();
+                _threadRefreshTimer.Start();
+                _refreshLatestThread.Start();
+                _threadFinder.RunWorkerAsync();
+            }
+
+        }
+
+        private void _SqLiteWriter_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            
+        }
+        /// <summary>
+        /// SqLite Test
+        /// </summary>
+        private void _SqLiteWriter_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var messageQuery = "SELECT * from whldata.messenger_messages WHERE threadID = 0 ";
+            var threadQuery = "SELECT * from whldata.messenger_threads where threadid = " +
+                              AuthdEmployee.PayrollId.ToString() + ";";
+            foreach (var pair in _currentThreads)
+            {
+                messageQuery += " OR threadid = " + pair.Key;
+            }
+            var results  = MSSQLPublic.SelectDataDictionary(messageQuery);
+            var threadresults = MSSQLPublic.SelectDataDictionary(threadQuery);
+            foreach (var result in results)
+            {
+                var query =
+                    "INSERT INTO messenger_messages (messageid,participantid,messagecontent,timestamp,threadid) VALUES ('" +
+                    result["messageid"].ToString() + "','" + result["participantid"].ToString() + "','" +
+                    result["messagecontent"] + "','" + result["timestamp"].ToString() + "','" + result["threadid"].ToString()+"');";
+                Console.WriteLine(SqLite.SqLiteInsertupdate(query));
+            }
+            foreach (var result in threadresults)
+            {
+                var query =
+                    "INSERT INTO messenger_messages (idmessenger_threads,threadid,participantid, notified,istwoway) VALUES ('" +
+                    result["idmessenger_threads"].ToString() + "','" + result["threadid"].ToString() + "','" +
+                    result["participantid"].ToString() + "','" + result["notified"].ToString() + "','" + result["istwoway"].ToString() +
+                    "');";
+                Console.WriteLine(SqLite.SqLiteInsertupdate(query));
+            }
+        }
+
 
 
         #endregion
@@ -217,6 +302,12 @@ namespace MessengerWPF
         }
         #endregion
         #region "Process Threads"
+        /// <summary>
+        /// Loads messages for a specified thread
+        /// </summary>
+        /// <param name="threadId"></param>
+        /// <param name="firstLoad"></param>
+        /// <param name="amountToLoad"></param>
         private void ProcessThreadId(int threadId, bool firstLoad=false,int amountToLoad=100)
         {
            
@@ -499,6 +590,11 @@ namespace MessengerWPF
                 }
 
             }
+            if (File.Exists(SqLite.DbLocation) && !(_SqLiteWriter.IsBusy) && updateSqLiteDb)
+            {
+                _SqLiteWriter.RunWorkerAsync();
+                updateSqLiteDb = false;
+            }
             LoadNotifications();
         }
         private void ThreadLoader_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -538,7 +634,7 @@ namespace MessengerWPF
             }
         }
         #endregion
-#region Click Events
+        #region Click Events
         private void HandleNoti(object sender, NotificationComponent e)
         {
             
@@ -627,27 +723,17 @@ namespace MessengerWPF
                 }
             }
         }
-        private async Task<bool> SendMessageasync(int ThreadID, string Message)
+        private void SettingsImageButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                var safeMsg = Message.Replace(";", "");
-                safeMsg = safeMsg.Replace("--", "");
-                safeMsg = safeMsg.Replace("'", "''");
-                safeMsg = safeMsg.Trim();
-                if (safeMsg != "")
-                {
-                    MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_messages (participantid,messagecontent,timestamp,threadid) VALUES (" + AuthdEmployee.PayrollId.ToString() + ",N'" + safeMsg + "','" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "','" + ThreadID.ToString() + "')");
-                }
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-
+            SettingsImageButton.Visibility = Visibility.Collapsed;
+            //throw new NotImplementedException("It's a feature"); //It's a feature
         }
+
+        private void OptionsClose_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsImageButton.Visibility = Visibility.Visible;
+        }
+
 
         private async void SendButton_Click(object sender, RoutedEventArgs e)
         {
@@ -688,7 +774,7 @@ namespace MessengerWPF
             if (_currentThread != -1) AddToThread(_currentThread, parent.EmployeeID);
         }
         #endregion
-#region Thread Controller
+        #region Thread Controller
         /// <summary>
         /// Adds a user to the specified thread
         /// </summary>
@@ -723,8 +809,29 @@ namespace MessengerWPF
             MSSQLPublic.insertUpdate("DELETE FROM whldata.messenger_threads WHERE threadid='"+threadId.ToString()+ "' AND participantid = '"+employeeid.ToString()+"';");
             MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_messages  (participantid,messagecontent,timestamp,threadid) VALUES (0,N'"+ _empcol.FindEmployeeByID(employeeid).FullName + " has been removed from the thread',Current_timestamp,'" + threadId.ToString() + ")");
         }
-#endregion
-#region Functions
+        #endregion
+        #region Functions
+        private async Task<bool> SendMessageasync(int ThreadID, string Message)
+        {
+            try
+            {
+                var safeMsg = Message.Replace(";", "");
+                safeMsg = safeMsg.Replace("--", "");
+                safeMsg = safeMsg.Replace("'", "''");
+                safeMsg = safeMsg.Trim();
+                if (safeMsg != "")
+                {
+                    MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_messages (participantid,messagecontent,timestamp,threadid) VALUES (" + AuthdEmployee.PayrollId.ToString() + ",N'" + safeMsg + "','" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "','" + ThreadID.ToString() + "')");
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+
+        }
         private bool CheckForUserInThread(int ThreadID, int EmployeeID)
         {
             var results = MSSQLPublic.SelectData("SELECT * from whldata.messenger_threads WHERE participantid='" + EmployeeID.ToString() + "' AND threadid='" + ThreadID.ToString() + "'") as ArrayList;
@@ -793,16 +900,7 @@ namespace MessengerWPF
             _threadFinder.CancelAsync();
         }
 
-        private void SettingsImageButton_Click(object sender, RoutedEventArgs e)
-        {
-            SettingsImageButton.Visibility = Visibility.Collapsed;
-            //throw new NotImplementedException("It's a feature"); //It's a feature
-        }
 
-        private void OptionsClose_Click(object sender, RoutedEventArgs e)
-        {
-            SettingsImageButton.Visibility = Visibility.Visible;
-        }
 
     }
 }
