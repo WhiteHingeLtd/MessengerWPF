@@ -79,7 +79,12 @@
                 <StackPanel x:Name="MessageStack" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
             </ScrollViewer>
             <TextBox x:Name="TypeBox" TextWrapping="Wrap" Padding="2" Grid.Row="1" Margin="0,0,0,4" VerticalContentAlignment="Center" VerticalAlignment="Center" KeyDown="TextBox_KeyDown" MaxLines="4"/>
-            <Button x:Name="SendButton" Content="Send" HorizontalContentAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,0,0,4" Click="SendButton_Click"/>
+            <Button x:Name="SendButton" Content="Send" HorizontalContentAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,0,40,0" Click="SendButton_Click"/>
+            <Button x:Name="SendPhotoButton" Content="Button" Grid.Column="1" Margin="82,0,0,0" Grid.Row="1" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="SendPhotoButton_Click">
+                <Button.Background>
+                    <ImageBrush ImageSource="chacticon.ico"/>
+                </Button.Background>
+            </Button>
         </Grid>
         <Grid x:Name="TitleGrid" HorizontalAlignment="Left" Height="56" VerticalAlignment="Top" Width="892" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
@@ -94,19 +99,18 @@
             </Grid>
         </Grid>
         <Grid x:Name="OptionsGrid" Height="57" Margin="0,-57,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
-            <Grid.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform/>
-                    <RotateTransform/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </Grid.RenderTransform>
             <Button x:Name="OptionsCloseButton" HorizontalAlignment="Left" VerticalAlignment="Top" Width="43" Height="32" Click="OptionsClose_Click" Foreground="{x:Null}" BorderBrush="{x:Null}" Style="{DynamicResource Button.OverButton}">
                 <Button.Background>
                     <ImageBrush ImageSource="close-icon.png" Stretch="Uniform"/>
                 </Button.Background>
             </Button>
+            <Button x:Name="PauseMessageRefreshingButton" Content="Button" HorizontalAlignment="Left" Margin="43,0,0,0" VerticalAlignment="Top" Width="31" Height="30" BorderBrush="{x:Null}" Foreground="{x:Null}">
+                <Button.Background>
+                    <ImageBrush ImageSource="Icons/pause.jpg" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button x:Name="LeaveThreadButton" Content="Button" HorizontalAlignment="Left" Margin="79,0,0,0" VerticalAlignment="Top" Width="30" Height="30" Click="LeaveThreadButton_Click"/>
+
         </Grid>
     </Grid>
 </Window>
