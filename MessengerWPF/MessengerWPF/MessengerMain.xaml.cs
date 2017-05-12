@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -58,6 +59,7 @@ namespace MessengerWPF
         private bool _pauseMessageRefreshing = false;
         
         private bool _updateSqliteDb;
+        private EmojiParser ep;
         #endregion
         #region Program Load Functions.
         /// <summary>
@@ -66,7 +68,8 @@ namespace MessengerWPF
         public MainWindow()
         {
             AuthdEmployee = null;
-            InitializeComponent();   
+            InitializeComponent();
+            ep = new EmojiParser();
         }
         /// <summary>
         /// Interaction for the program's initial load
@@ -385,8 +388,8 @@ namespace MessengerWPF
                         if (result[1].ToString() == AuthdEmployee.PayrollId.ToString())
                         {
                             var msg = new SelfMessage();
-                            msg.FromMessageBox.Text = "";
-                            msg.FromMessageBox.Inlines.Clear();
+                            msg.FromMessageBox.Document.Blocks.Clear();
+                            msg.FromMessageBox.Document.Blocks.Clear();
                             var splitStrings = Regex.Split(result[2].ToString(), " ");
                             
                             foreach (var splits in splitStrings)
@@ -404,18 +407,24 @@ namespace MessengerWPF
                                             };
                                             newHyperLink.Inlines.Add(hyperLinks);
                                             newHyperLink.RequestNavigate += NewHyperLink_RequestNavigate;
-                                            msg.FromMessageBox.Inlines.Add(newHyperLink);
-                                            msg.FromMessageBox.Inlines.Add(" ");
+                                            var para = new Paragraph();
+                                            para.Inlines.Add(newHyperLink);
+                                            para.Inlines.Add(" ");
+                                            msg.FromMessageBox.Document.Blocks.Add(para);
                                         }
                                         else
                                         {
-                                            msg.FromMessageBox.Inlines.Add(splits + " ");
+                                            var para = new Paragraph();
+                                            para.Inlines.Add(splits + " ");
+                                            msg.FromMessageBox.Document.Blocks.Add(para);
                                         }
                                     }
                                 }
                                 else
                                 {
-                                    msg.FromMessageBox.Inlines.Add(splits + " ");
+                                    var para = new Paragraph();
+                                    para.Inlines.Add(splits + " ");
+                                    msg.FromMessageBox.Document.Blocks.Add(para);
                                 }
                             }
                             msg.InitializeComponent();
@@ -431,8 +440,7 @@ namespace MessengerWPF
                         else if (result[1].ToString() != AuthdEmployee.PayrollId.ToString())
                         {
                             var msg = new OtherMessage();
-                            msg.OtherMessageBox.Text = "";
-                            msg.OtherMessageBox.Inlines.Clear();
+                            msg.OtherMessageBox.Document.Blocks.Clear();
                             var splitStrings = Regex.Split(result[2].ToString(), " ");
                             var lastString = splitStrings.Last();
                             foreach (var splits in splitStrings)
@@ -451,29 +459,51 @@ namespace MessengerWPF
                                             newHyperLink.NavigateUri = new Uri(hyperLinks);
                                             newHyperLink.Inlines.Add(hyperLinks);
                                             newHyperLink.RequestNavigate += NewHyperLink_RequestNavigate;
-                                            if (isLast) msg.OtherMessageBox.Inlines.Add(newHyperLink);
+
+                                            if (isLast)
+                                            {
+                                                var para = new Paragraph();
+                                                para.Inlines.Add(newHyperLink);
+                                                msg.OtherMessageBox.Document.Blocks.Add(para);
+                                            }
                                             else
                                             {
-                                                msg.OtherMessageBox.Inlines.Add(newHyperLink + " ");
+                                                var para = new Paragraph();
+                                                para.Inlines.Add(newHyperLink + " ");
+                                                msg.OtherMessageBox.Document.Blocks.Add(para);
                                             }
                                             
                                         }
                                         else
                                         {
-                                            if (isLast) msg.OtherMessageBox.Inlines.Add(splits);
+                                            if (isLast)
+                                            {
+                                                var para = new Paragraph();
+                                                para.Inlines.Add(splits);
+                                                msg.OtherMessageBox.Document.Blocks.Add(para);
+                                            }
                                             else
                                             {
-                                                msg.OtherMessageBox.Inlines.Add(splits + " ");
+                                                var para = new Paragraph();
+                                                para.Inlines.Add(splits + " ");
+                                                msg.OtherMessageBox.Document.Blocks.Add(para);
                                             }
                                         }
                                     }
                                 }
                                 else
                                 {
-                                    if (isLast) msg.OtherMessageBox.Inlines.Add(splits);
+                                    if (isLast)
+                                    {
+                                        var para = new Paragraph();
+                                        para.Inlines.Add(splits);
+                                        msg.OtherMessageBox.Document.Blocks.Add(para);
+                                    }
                                     else
                                     {
-                                        msg.OtherMessageBox.Inlines.Add(splits + " ");
+                                        var para = new Paragraph();
+                                        para.Inlines.Add(splits + " ");
+                                        msg.OtherMessageBox.Document.Blocks.Add(para);
                                     }
                                 }
                             }
@@ -485,7 +515,10 @@ namespace MessengerWPF
                     else if (result[1].ToString() == AuthdEmployee.PayrollId.ToString())
                     {
                         var msg = new SelfMessage();
-                        msg.FromMessageBox.Text = result[2].ToString();
+                        var para = new Paragraph();
+                        para.Inlines.Add(result[2].ToString());
+                        msg.FromMessageBox.Document.Blocks.Add(para);
+ 
                         msg.InitializeComponent();
                         MessageStack.Children.Add(msg);
                     }
@@ -499,8 +532,10 @@ namespace MessengerWPF
                     else if (result[1].ToString() != AuthdEmployee.PayrollId.ToString())
                     {
                         var msg = new OtherMessage();
-                        msg.OtherMessageBox.Text = result[2].ToString();
-                        msg.SenderName.Text = _empcol.FindEmployeeByID(Int32.Parse(result[1].ToString())).FullName;
+                        var para = new Paragraph();
+                        para.Inlines.Add(result[2].ToString());
+                        msg.OtherMessageBox.Document.Blocks.Add(para);
+                        msg.SenderName.Text = _empcol.FindEmployeeByID(int.Parse(result[1].ToString())).FullName;
                         msg.InitializeComponent();
                         MessageStack.Children.Add(msg);
 
