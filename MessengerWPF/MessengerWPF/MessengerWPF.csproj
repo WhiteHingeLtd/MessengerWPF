@@ -29,7 +29,7 @@
     <MapFileExtensions>true</MapFileExtensions>
     <InstallUrl>http://apps.ad.whitehinge.com/AppPublish/Messenger2/</InstallUrl>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>2</ApplicationRevision>
+    <ApplicationRevision>3</ApplicationRevision>
     <ApplicationVersion>0.1.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -237,6 +237,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\EmojiBox-master\EmojiBox\EmojiBox.csproj">
+      <Project>{2e3878c0-b0eb-40e1-bc9e-b123ef9dd463}</Project>
+      <Name>EmojiBox</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Framework\Framework\Framework.vbproj">
       <Project>{8a2b93b9-4651-40f3-bbf9-d8fd0474a719}</Project>
       <Name>Framework</Name>

@@ -19,6 +19,7 @@ using MessengerWPF.MessageStorage;
 using WHLClasses;
 using WHLClasses.Notifications;
 using WHLClasses.SQL.SQLException;
+using EmojiBox;
 
 namespace MessengerWPF
 {
@@ -737,13 +738,14 @@ namespace MessengerWPF
             {
                 if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0)
                 {
-                    TypeBox.Text = TypeBox.Text + Environment.NewLine;
+                    //TypeBox.Text = TypeBox.Text + Environment.NewLine;
                 }
                 else if (_currentThread != -1)
                 {
-                    var sendMessageTask = SendMessageasync(_currentThread, TypeBox.Text);
+                    var range = new TextRange(TypeBox.Document.ContentStart, TypeBox.Document.ContentEnd).Text;
+                    var sendMessageTask = SendMessageasync(_currentThread, range);
 
-                    TypeBox.Text = "";
+                    TypeBox.Document = null;
                     RefreshTimer_Tick(null, null);
                     ThreadLoaderTimerTick(null, null);
                     var success = await sendMessageTask;
@@ -767,9 +769,10 @@ namespace MessengerWPF
         {
             if (_currentThread != -1)
             {
-                var sendMessageTask = SendMessageasync(_currentThread, TypeBox.Text);
+                var range = new TextRange(TypeBox.Document.ContentStart, TypeBox.Document.ContentEnd).Text;
+                var sendMessageTask = SendMessageasync(_currentThread, range);
 
-                TypeBox.Text = "";
+                TypeBox.Document.Blocks.Clear();
                 RefreshTimer_Tick(null, null);
                 ThreadLoaderTimerTick(null, null);
                 var success = await sendMessageTask;
@@ -823,7 +826,7 @@ namespace MessengerWPF
                     File.Copy(dlg.FileName, notidirectory);
                     var sendMessageTask = SendMessageasync(_currentThread, notidirectory);
 
-                    TypeBox.Text = "";
+                    TypeBox.Document.Blocks.Clear();
                     RefreshTimer_Tick(null, null);
                     ThreadLoaderTimerTick(null, null);
                     var success = sendMessageTask.Result;

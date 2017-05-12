@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-
+        xmlns:Ui="clr-namespace:EmojiBox.Ui;assembly=EmojiBox"
+        
         mc:Ignorable="d"
         Title="Messenger" Height="700" Width="900" Background="{x:Null}" Loaded="Messenger_Loaded" Closed="Messenger_Closed">
     <Window.Resources>
@@ -78,7 +79,8 @@
             <ScrollViewer x:Name="MessageScrollviewer" Margin="0,0,0,40.5" Padding="5,5,5,0" PanningMode="VerticalOnly" Grid.ColumnSpan="2" Grid.RowSpan="2" Background="#FFF0F0F0">
                 <StackPanel x:Name="MessageStack" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
             </ScrollViewer>
-            <TextBox x:Name="TypeBox" TextWrapping="Wrap" Padding="2" Grid.Row="1" Margin="0,0,0,4" VerticalContentAlignment="Center" VerticalAlignment="Center" KeyDown="TextBox_KeyDown" MaxLines="4"/>
+            <!--<TextBox x:Name="TypeBox" TextWrapping="Wrap" Padding="2" Grid.Row="1" Margin="0,0,0,4" VerticalContentAlignment="Center" VerticalAlignment="Center" KeyDown="TextBox_KeyDown" MaxLines="4"/>-->
+            <Ui:EmojiRichTextBox x:Name="TypeBox" Padding="2" Grid.Row="1" Margin="0,0,0,4" VerticalContentAlignment="Center" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>
             <Button x:Name="SendButton" Content="Send" HorizontalContentAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,0,40,0" Click="SendButton_Click"/>
             <Button x:Name="SendPhotoButton" Content="Button" Grid.Column="1" Margin="82,0,0,0" Grid.Row="1" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="SendPhotoButton_Click">
                 <Button.Background>
