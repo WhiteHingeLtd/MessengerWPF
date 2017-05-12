@@ -5,6 +5,9 @@
     /// </summary>
     public partial class OtherMessage
     {
+        /// <summary>
+        /// Message user control from other users
+        /// </summary>
         public OtherMessage()
         {
             InitializeComponent();

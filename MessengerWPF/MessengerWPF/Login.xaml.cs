@@ -10,25 +10,37 @@ namespace MessengerWPF
     /// </summary>
     public partial class Login
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public static Employee CurrentEmployee = new Employee();
-        public EmployeeCollection Empcol = new EmployeeCollection();
+        private EmployeeCollection _empcol = new EmployeeCollection();
         private bool _requirespin;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public Login()
         {
             InitializeComponent();
             LoginScanBox.Focus();
         }
+
+        /// <summary>
+        /// Processes the login screen data
+        /// </summary>
+        /// <param name="data">The string from the textbox</param>
         private void ProcessData(string data)
         {
             if (data.StartsWith("qzu"))
             {
-                MainWindow.AuthdEmployee = Empcol.FindEmployeeByID(Int32.Parse(data.Replace("qzu", "")));
+                MainWindow.AuthdEmployee = _empcol.FindEmployeeByID(int.Parse(data.Replace("qzu", "")));
                 Close();
             }
             else if (data.Length > 0 & data.Length < 3)
             {
-                LoginTitle.Text = Empcol.FindEmployeeByID(Convert.ToInt32(data)).FullName + " Please enter your Pin";
-                CurrentEmployee = Empcol.FindEmployeeByID(Convert.ToInt32(data));
+                LoginTitle.Text = _empcol.FindEmployeeByID(Convert.ToInt32(data)).FullName + " Please enter your Pin";
+                CurrentEmployee = _empcol.FindEmployeeByID(Convert.ToInt32(data));
                 _requirespin = true;
             }
             else if (_requirespin)
@@ -41,9 +53,8 @@ namespace MessengerWPF
                 }
                 else
                 {
-                    var Msg = new WPFMsgBox();
-                    Msg.Body.Text = "That is the wrong pin, please try again";
-                    Msg.ShowDialog();
+                    var msg = new WPFMsgBox("Error", "That is the wrong pin, please try again");                      
+                    msg.ShowDialog();
                 }
             }
         }

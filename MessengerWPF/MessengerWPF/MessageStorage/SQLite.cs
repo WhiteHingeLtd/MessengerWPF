@@ -6,11 +6,25 @@ using System.IO;
 
 namespace MessengerWPF.MessageStorage
 {
+    /// <summary>
+    /// Class to handle all SQLite Interaction
+    /// </summary>
     public class SqLite
     {
-        public static string DbLocation = @"C:\WHL\Messenger.sqlite";
-        public static string SqLiteConnStr = @"Data Source=C:\WHL\Messenger.sqlite;Version=3;";
+        /// <summary>
+        /// Current DBLocation, Defaults to the AppData folder
+        /// </summary>
+        public static string DbLocation = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\WHL\Messenger.sqlite";
+        /// <summary>
+        /// Connection String, Defaults to the AppData folder
+        /// </summary>
+        public static string SqLiteConnStr = @"Data Source="+ Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\WHL\Messenger.sqlite";
 
+        /// <summary>
+        /// Allows for selection of a list of dictionaries based on the Input query
+        /// </summary>
+        /// <param name="Query">Query to be run on the SQLite Database</param>
+        /// <returns>A list of Dictionaries. Each dict represents a row, key represents the column name.</returns>
         public static List<Dictionary<string, object>> SqLiteSelectDataDictionary(string Query)
         {
             //Create MSSQLPublic Connection
@@ -52,7 +66,11 @@ namespace MessengerWPF.MessageStorage
                 conn.Close();
             }
         }
-        public static object SqLiteTestConn()
+        /// <summary>
+        /// Tests the connection between the user and the SQLite Database
+        /// </summary>
+        /// <returns>The success of the connection</returns>
+        public static bool SqLiteTestConn()
         {
             //From heere
             var conn = new SQLiteConnection(SqLiteConnStr);
@@ -65,12 +83,15 @@ namespace MessengerWPF.MessageStorage
                 // Do nothing with the connection.
 
                 //Then return at the end with the data.
-                return "Connection to " + conn.Database + " is active (" + DateTime.Now.ToLongDateString() + ")";
+                Console.WriteLine("Connection to " + conn.Database + " is active (" + DateTime.Now.ToLongDateString() + ")");
+                return true;
+                    
 
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                Console.WriteLine(ex.Message);
+                return false;
             }
             finally
             {
@@ -78,6 +99,11 @@ namespace MessengerWPF.MessageStorage
             }
 
         }
+        /// <summary>
+        /// Depreciated method for quick use. Returns an arraylist of arraylists 
+        /// </summary>
+        /// <param name="query">Query to be run on the SQLite Database</param>
+        /// <returns>ArrayList of ArrayLists</returns>
         public static object SqLiteSelectData(string query)
         {
             //From heere
@@ -125,7 +151,12 @@ namespace MessengerWPF.MessageStorage
             }
 
         }
-        public static object SqLiteInsertupdate(string query)
+        /// <summary>
+        /// Use for any none select query, returns a result based on the query inputted
+        /// </summary>
+        /// <param name="query">Query to be run on the SQLite Database</param>
+        /// <returns></returns>
+        public static object SqliteOtherQuery(string query)
         {
 
             //From heere
@@ -155,7 +186,9 @@ namespace MessengerWPF.MessageStorage
             }
 
         }
-
+        /// <summary>
+        /// Prepares the database for use with the messenger application.
+        /// </summary>
         public static void PrepareDb()
         {
             if (!File.Exists(DbLocation))

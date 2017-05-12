@@ -11,7 +11,7 @@
             <RowDefinition Height="120*"/>
         </Grid.RowDefinitions>
         <TextBlock x:Name="DialogTitle" Margin="10,10,10,244.04" TextWrapping="Wrap" Text="Error" FontSize="48" TextAlignment="Center" Grid.RowSpan="2" Foreground="White"/>
-        <Button x:Name="CloseButton" Content="OK" Margin="220,10" BorderBrush="#FF707070" Background="{x:Null}" FontSize="36" RenderTransformOrigin="0.5,0.5" Grid.Row="2" Foreground="White" Click="CloseButton_Click"/>
+        <Button Content="OK" Margin="220,10" BorderBrush="#FF707070" Background="{x:Null}" FontSize="36" RenderTransformOrigin="0.5,0.5" Grid.Row="2" Foreground="White" Click="CloseButton_Click"/>
         <TextBlock x:Name="Body" HorizontalAlignment="Left" Margin="116.5,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="247" Width="430" FontSize="36" TextAlignment="Center" Text="" Grid.Row="1" Foreground="White"/>
         <Border BorderBrush="Black" BorderThickness="1" Grid.RowSpan="3"/>
 

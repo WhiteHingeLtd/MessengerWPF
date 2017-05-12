@@ -5,6 +5,9 @@
     /// </summary>
     public partial class SelfMessage
     {
+        /// <summary>
+        /// UserControl for Self Text Messages
+        /// </summary>
         public SelfMessage()
         {
             InitializeComponent();

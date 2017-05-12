@@ -6,10 +6,16 @@
     /// 
     public partial class ThreadControl
     {
+        /// <summary>
+        /// UserControl used for displaying threads on the sidebar
+        /// </summary>
         public ThreadControl()
         {
             InitializeComponent();
         }
-        public int ThreadID = 0;
+        /// <summary>
+        /// The Current ThreadId
+        /// </summary>
+        public int ThreadId = 0;
     }
 }

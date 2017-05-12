@@ -15,18 +15,18 @@ Title="WPFLoginScreen" Height="468.014" Width="450" ResizeMode="NoResize" Backgr
             <TextBlock x:Name="LoginTitle" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Please Login" VerticalAlignment="Center" Foreground="White" FontSize="24"/>
         </Grid>
         <UniformGrid HorizontalAlignment="Center" Height="267" Margin="89.5,48,81.5,0" Grid.Row="2" VerticalAlignment="Top" Width="279" Rows="4" Columns="3">
-            <Button x:Name="Keypad1" Content="1" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
-            <Button x:Name="Keypad2" Content="2" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
-            <Button x:Name="Keypad3" Content="3" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
-            <Button x:Name="Keypad4" Content="4" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
-            <Button x:Name="Keypad5" Content="5" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
-            <Button x:Name="Keypad6" Content="6" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
-            <Button x:Name="Keypad7" Content="7" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
-            <Button x:Name="Keypad8" Content="8" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
-            <Button x:Name="Keypad9" Content="9" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
-            <Button x:Name="ClearButton" Content="Clear" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="ClearButton_Click"/>
-            <Button x:Name="Keypad0" Content="0" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
-            <Button x:Name="KeypadEnter" Content="Enter" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="KeypadEnter_Click"/>
+            <Button Content="1" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
+            <Button Content="2" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
+            <Button Content="3" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
+            <Button Content="4" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
+            <Button Content="5" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
+            <Button Content="6" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
+            <Button Content="7" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
+            <Button Content="8" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
+            <Button Content="9" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
+            <Button Content="Clear" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="ClearButton_Click"/>
+            <Button Content="0" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="Keypad1_Click"/>
+            <Button Content="Enter" Foreground="White" BorderBrush="{x:Null}" Background="#72919191" FontSize="24" Margin="1.5" Click="KeypadEnter_Click"/>
         </UniformGrid>
         <TextBox x:Name="LoginScanBox" HorizontalAlignment="Center" Height="33" Margin="89.5,43,81.5,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Width="279" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontSize="24" HorizontalContentAlignment="Center" KeyDown="LoginScanBox_KeyDown"/>
         <Border BorderBrush="Black" BorderThickness="1" Grid.RowSpan="3"/>

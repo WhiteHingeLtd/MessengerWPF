@@ -46,17 +46,22 @@ namespace MessengerWPF
         /// For this Dictionary the Key is the Thread and the Value is the latest message id
         /// </summary>
         private Dictionary<int, int> _userLastThreadNoti = new Dictionary<int, int>(); 
-        
+        /// <summary>
+        /// 
+        /// </summary>
         public static Employee AuthdEmployee = new Employee();
-        public bool IsOffline;
+        private bool _isOffline;
         private int _currentThread = -1;
         private int _latestThreadId = -1;
         private int _lastMessageInThread = -1;
-        private bool PauseMessageRefreshing = false;
+        private bool _pauseMessageRefreshing = false;
         
         private bool _updateSqliteDb;
         #endregion
-        #region Program Load Functions
+        #region Program Load Functions.
+        /// <summary>
+        /// MainWindow Initializiation
+        /// </summary>
         public MainWindow()
         {
             AuthdEmployee = null;
@@ -85,7 +90,7 @@ namespace MessengerWPF
                 var loginwindow = new Login();
                 loginwindow.ShowDialog();
             }
-            IsOffline = MSSQLPublic.TestConn();
+            _isOffline = MSSQLPublic.TestConn();
 
             _threadLoader.DoWork += ThreadLoader_DoWork;
             _threadLoader.WorkerSupportsCancellation = true;
@@ -94,7 +99,7 @@ namespace MessengerWPF
             _threadRefreshTimer.Interval = new TimeSpan(0, 0, 0, 1);
             _threadRefreshTimer.Tick += RefreshTimer_Tick;
             _threadRefreshTimer.Start();
-            _refreshLatestThread.Interval = new TimeSpan(0, 0, 0, 1);
+            _refreshLatestThread.Interval = new TimeSpan(0, 0, 0, 10);
             _refreshLatestThread.Tick += RefreshLatestThread_Tick;
             _refreshLatestThread.Start();
 
@@ -164,32 +169,32 @@ namespace MessengerWPF
         /// </summary>
         private void _SqLiteWriter_DoWork(object sender, DoWorkEventArgs e)
         {
-            //var messageQuery = "SELECT * from whldata.messenger_messages WHERE threadID = 0 ";
-            //var threadQuery = "SELECT * from whldata.messenger_threads where participantid = " +
-            //                  AuthdEmployee.PayrollId.ToString() + ";";
-            //foreach (var pair in _currentThreads)
-            //{
-            //    messageQuery += " OR threadid = " + pair.Key;
-            //}
-            //var results  = MSSQLPublic.SelectDataDictionary(messageQuery);
-            //var threadresults = MSSQLPublic.SelectDataDictionary(threadQuery);
-            //foreach (var result in results)
-            //{
-            //    var query =
-            //        "REPLACE INTO messenger_messages (messageid,participantid,messagecontent,timestamp,threadid) VALUES ('" +
-            //        result["messageid"].ToString() + "','" + result["participantid"].ToString() + "','" +
-            //        result["messagecontent"] + "','" + result["timestamp"].ToString() + "','" + result["threadid"].ToString()+"');";
-            //    Console.WriteLine(SqLite.SqLiteInsertupdate(query));
-            //}
-            //foreach (var result in threadresults)
-            //{
-            //    var query =
-            //        "REPLACE INTO messenger_messages (idmessenger_threads,threadid,participantid, notified,istwoway) VALUES ('" +
-            //        result["idmessenger_threads"].ToString() + "','" + result["threadid"].ToString() + "','" +
-            //        result["participantid"].ToString() + "','" + result["notified"].ToString() + "','" + result["istwoway"].ToString() +
-            //        "');";
-            //    Console.WriteLine(SqLite.SqLiteInsertupdate(query));
-            //}
+            var messageQuery = "SELECT * from whldata.messenger_messages WHERE threadID = 0 ";
+            var threadQuery = "SELECT * from whldata.messenger_threads where participantid = " +
+                              AuthdEmployee.PayrollId.ToString() + ";";
+            foreach (var pair in _currentThreads)
+            {
+                messageQuery += " OR threadid = " + pair.Key;
+            }
+            var results = MSSQLPublic.SelectDataDictionary(messageQuery);
+            var threadresults = MSSQLPublic.SelectDataDictionary(threadQuery);
+            foreach (var result in results)
+            {
+                var query =
+                    "REPLACE INTO messenger_messages (messageid,participantid,messagecontent,timestamp,threadid) VALUES ('" +
+                    result["messageid"].ToString() + "','" + result["participantid"].ToString() + "','" +
+                    result["messagecontent"] + "','" + result["timestamp"].ToString() + "','" + result["threadid"].ToString() + "');";
+                Console.WriteLine(SqLite.SqliteOtherQuery(query));
+            }
+            foreach (var result in threadresults)
+            {
+                var query =
+                    "REPLACE INTO messenger_messages (idmessenger_threads,threadid,participantid, notified,istwoway) VALUES ('" +
+                    result["idmessenger_threads"].ToString() + "','" + result["threadid"].ToString() + "','" +
+                    result["participantid"].ToString() + "','" + result["notified"].ToString() + "','" + result["istwoway"].ToString() +
+                    "');";
+                Console.WriteLine(SqLite.SqliteOtherQuery(query));
+            }
         }
 
 
@@ -216,7 +221,7 @@ namespace MessengerWPF
         [DebuggerStepThrough]
         private void RefreshTimer_Tick(object sender, EventArgs e)
         {
-            if (_currentThread != -1 && !(PauseMessageRefreshing))
+            if (_currentThread != -1 && !(_pauseMessageRefreshing))
             {
                 ProcessThreadId(_currentThread);
             }
@@ -260,7 +265,7 @@ namespace MessengerWPF
                     {
                         var refcontrol = new ThreadControl
                         {
-                            ThreadID = int.Parse(result["threadid"].ToString())
+                            ThreadId = int.Parse(result["threadid"].ToString())
                             
                         };
                         refcontrol.ThreadUsers.Text = "";
@@ -612,17 +617,31 @@ namespace MessengerWPF
             _notiStopwatch.Stop();
             Console.WriteLine(_notiStopwatch.ElapsedMilliseconds);
         }
-        private void DisplayNotifications(List<ArrayList> notis)
+        private void DisplayNotifications(List<Dictionary<string,object>> notis)
         {
             foreach (var noti in notis)
             {
-                TextOnlyNotification[] notiText = { new TextOnlyNotification(noti[2].ToString(), HandleNoti) };
-                Notification.CreateNotification("Messenger", notiText, 20);
+                NotificationComponent[] notiText =
+                {
+                    new TextOnlyNotification(noti["messagecontent"].ToString(), HandleNoti)
+                };
+                var currentNoti = Notification.CreateNotification(_empcol.FindEmployeeByID(Convert.ToInt32(noti["participantid"])).FullName,notiText,-1F,HandleNotiReal);
+
+
+
+
+                //Notification.CreateNotification("Messenger", notiText, 20);
             }
                 
 
         }
-        private List<ArrayList> _notisArrayList = new List<ArrayList>();
+
+        private void HandleNotiReal(object sender, NotificationBase bNotificationBase)
+        {
+            
+        }
+
+        private List<Dictionary<string, object>> _notisArrayList = new List<Dictionary<string, object>>();
         private void LoadNotifications()
         {
             System.Threading.Thread.Sleep(1000);
@@ -631,11 +650,11 @@ namespace MessengerWPF
             foreach (var threads in userLastThreadSafe)
             {
                 if (threads.Key == _currentThread) continue;
-                var latestMessage = MSSQLPublic.SelectData("SELECT * from whldata.messenger_messages WHERE threadid='"+threads.Key.ToString()+"' AND messageid > '"+threads.Value.ToString() + "';") as ArrayList;
+                var latestMessage = MSSQLPublic.SelectDataDictionary("SELECT * from whldata.messenger_messages WHERE threadid='"+threads.Key.ToString()+"' AND messageid > '"+threads.Value.ToString() + "';") ;
                 if (latestMessage == null || latestMessage.Count == 0) continue;
-                foreach (ArrayList result in latestMessage)
+                foreach (var result in latestMessage)
                 {
-                    if (result[1].ToString() == AuthdEmployee.PayrollId.ToString()) continue;
+                    if (result["participantid"].ToString() == AuthdEmployee.PayrollId.ToString()) continue;
                     _notisArrayList.Add(result);
 
                 }
@@ -653,8 +672,8 @@ namespace MessengerWPF
             var ctrl = sender as ThreadControl;
             if (sender is ThreadControl)
             {
-                _currentThread = ctrl.ThreadID;
-                ProcessThreadId(ctrl.ThreadID, true);
+                _currentThread = ctrl.ThreadId;
+                ProcessThreadId(ctrl.ThreadId, true);
                 TypeBox.IsReadOnly = false;
                 TypeBox.Focus();
             }

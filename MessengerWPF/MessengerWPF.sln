@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+VisualStudioVersion = 15.0.26430.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessengerWPF", "MessengerWPF\MessengerWPF.csproj", "{47FB7AA3-B186-4186-8DE5-ED1494E4A0E1}"
 EndProject
@@ -42,8 +42,8 @@ Global
 		{47FB7AA3-B186-4186-8DE5-ED1494E4A0E1}.Test|x86.Build.0 = Release|Any CPU
 		{8A2B93B9-4651-40F3-BBF9-D8FD0474A719}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8A2B93B9-4651-40F3-BBF9-D8FD0474A719}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8A2B93B9-4651-40F3-BBF9-D8FD0474A719}.Debug|x64.ActiveCfg = Debug|x64
-		{8A2B93B9-4651-40F3-BBF9-D8FD0474A719}.Debug|x64.Build.0 = Debug|x64
+		{8A2B93B9-4651-40F3-BBF9-D8FD0474A719}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8A2B93B9-4651-40F3-BBF9-D8FD0474A719}.Debug|x64.Build.0 = Debug|Any CPU
 		{8A2B93B9-4651-40F3-BBF9-D8FD0474A719}.Debug|x86.ActiveCfg = Debug|x86
 		{8A2B93B9-4651-40F3-BBF9-D8FD0474A719}.Debug|x86.Build.0 = Debug|x86
 		{8A2B93B9-4651-40F3-BBF9-D8FD0474A719}.Release|Any CPU.ActiveCfg = Release|Any CPU

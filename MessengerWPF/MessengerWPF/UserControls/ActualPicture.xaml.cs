@@ -5,6 +5,9 @@
     /// </summary>
     public partial class ActualPicture
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public ActualPicture()
         {
             InitializeComponent();

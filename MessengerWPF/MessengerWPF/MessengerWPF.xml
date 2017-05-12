@@ -1,0 +1,403 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MessengerWPF</name>
+    </assembly>
+    <members>
+        <member name="T:MessengerWPF.Login">
+            <summary>
+            Interaction logic for Login.xaml
+            </summary>
+            <summary>
+            Login
+            </summary>
+        </member>
+        <member name="F:MessengerWPF.Login.CurrentEmployee">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.Login.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.Login.ProcessData(System.String)">
+            <summary>
+            Processes the login screen data
+            </summary>
+            <param name="data">The string from the textbox</param>
+        </member>
+        <member name="M:MessengerWPF.Login.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:MessengerWPF.MessageStorage.SqLite">
+            <summary>
+            Class to handle all SQLite Interaction
+            </summary>
+        </member>
+        <member name="F:MessengerWPF.MessageStorage.SqLite.DbLocation">
+            <summary>
+            Current DBLocation, Defaults to the AppData folder
+            </summary>
+        </member>
+        <member name="F:MessengerWPF.MessageStorage.SqLite.SqLiteConnStr">
+            <summary>
+            Connection String, Defaults to the AppData folder
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.MessageStorage.SqLite.SqLiteSelectDataDictionary(System.String)">
+            <summary>
+            Allows for selection of a list of dictionaries based on the Input query
+            </summary>
+            <param name="Query">Query to be run on the SQLite Database</param>
+            <returns>A list of Dictionaries. Each dict represents a row, key represents the column name.</returns>
+        </member>
+        <member name="M:MessengerWPF.MessageStorage.SqLite.SqLiteTestConn">
+            <summary>
+            Tests the connection between the user and the SQLite Database
+            </summary>
+            <returns>The success of the connection</returns>
+        </member>
+        <member name="M:MessengerWPF.MessageStorage.SqLite.SqLiteSelectData(System.String)">
+            <summary>
+            Depreciated method for quick use. Returns an arraylist of arraylists 
+            </summary>
+            <param name="query">Query to be run on the SQLite Database</param>
+            <returns>ArrayList of ArrayLists</returns>
+        </member>
+        <member name="M:MessengerWPF.MessageStorage.SqLite.SqliteOtherQuery(System.String)">
+            <summary>
+            Use for any none select query, returns a result based on the query inputted
+            </summary>
+            <param name="query">Query to be run on the SQLite Database</param>
+            <returns></returns>
+        </member>
+        <member name="M:MessengerWPF.MessageStorage.SqLite.PrepareDb">
+            <summary>
+            Prepares the database for use with the messenger application.
+            </summary>
+        </member>
+        <member name="T:MessengerWPF.UserControls.ActualPicture">
+            <summary>
+            Interaction logic for ActualPicture.xaml
+            </summary>
+            <summary>
+            ActualPicture
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.ActualPicture.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.ActualPicture.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:MessengerWPF.UserControls.ContactControl">
+            <summary>
+            Interaction logic for ContactControl.xaml
+            </summary>
+            <summary>
+            ContactControl
+            </summary>
+        </member>
+        <member name="F:MessengerWPF.UserControls.ContactControl.EmployeeID">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.ContactControl.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.ContactControl.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:MessengerWPF.UserControls.OtherMessage">
+            <summary>
+            Interaction logic for OtherMessage.xaml
+            </summary>
+            <summary>
+            OtherMessage
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.OtherMessage.#ctor">
+            <summary>
+            Message user control from other users
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.OtherMessage.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:MessengerWPF.UserControls.OtherPictureControl">
+            <summary>
+            Interaction logic for OtherPictureControl.xaml
+            </summary>
+            <summary>
+            OtherPictureControl
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.OtherPictureControl.#ctor">
+            <summary>
+            UserControl for pictures from Other Users
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.OtherPictureControl.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:MessengerWPF.UserControls.SelfMessage">
+            <summary>
+            Interaction logic for SelfMessage.xaml
+            </summary>
+            <summary>
+            SelfMessage
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.SelfMessage.#ctor">
+            <summary>
+            UserControl for Self Text Messages
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.SelfMessage.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:MessengerWPF.UserControls.SystemNotiControl">
+            <summary>
+            Interaction logic for SystemNotiControl.xaml
+            </summary>
+            <summary>
+            SystemNotiControl
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.SystemNotiControl.#ctor">
+            <summary>
+            UserControl for use with System-Sent Messages.
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.SystemNotiControl.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:MessengerWPF.UserControls.ThreadControl">
+            <summary>
+            Interaction logic for ThreadControl.xaml
+            </summary>
+            
+            <summary>
+            ThreadControl
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.ThreadControl.#ctor">
+            <summary>
+            UserControl used for displaying threads on the sidebar
+            </summary>
+        </member>
+        <member name="F:MessengerWPF.UserControls.ThreadControl.ThreadId">
+            <summary>
+            The Current ThreadId
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.ThreadControl.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:MessengerWPF.UserControls.UserPictureControl">
+            <summary>
+            Interaction logic for UserPictureControl.xaml
+            </summary>
+            <summary>
+            UserPictureControl
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.UserPictureControl.#ctor">
+            <summary>
+            A Control used to display pictures sent by the userw
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.UserControls.UserPictureControl.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:MessengerWPF.WPFMsgBox">
+            <summary>
+            Interaction logic for WPFMsgBox.xaml
+            </summary>
+            <summary>
+            WPFMsgBox
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.WPFMsgBox.#ctor(System.String,System.String)">
+            <summary>
+            Displays a WPF Styled MessageBox. Useful for TouchDisplays and Low Screen Size Devices
+            </summary>
+            <param name="title">Title of the MessageBox</param>
+            <param name="body">Body of the MessageBox</param>
+        </member>
+        <member name="M:MessengerWPF.WPFMsgBox.CloseButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Closes the window
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:MessengerWPF.WPFMsgBox.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:MessengerWPF.App">
+            <summary>
+            Interaction logic for App.xaml
+            </summary>
+            <summary>
+            App
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.App.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.App.Main">
+            <summary>
+            Application Entry Point.
+            </summary>
+        </member>
+        <member name="T:MessengerWPF.MainWindow">
+            <summary>
+            Interaction logic for MainWindow.xaml
+            </summary>
+            <summary>
+            MainWindow
+            </summary>
+        </member>
+        <member name="F:MessengerWPF.MainWindow.ThreadsWithUsers">
+            <summary>
+            This Dictionary uses the threadId as the key and provides a list of users
+            </summary>
+        </member>
+        <member name="F:MessengerWPF.MainWindow._userLastThreadNoti">
+            <summary>
+            For this Dictionary the Key is the Thread and the Value is the latest message id
+            </summary>
+        </member>
+        <member name="F:MessengerWPF.MainWindow.AuthdEmployee">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.MainWindow.#ctor">
+            <summary>
+            MainWindow Initializiation
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.MainWindow.Messenger_Loaded(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Interaction for the program's initial load
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.MainWindow._SqLiteWriter_DoWork(System.Object,System.ComponentModel.DoWorkEventArgs)">
+            <summary>
+            SqLite Test
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.MainWindow.ThreadLoader_DoWork(System.Object,System.ComponentModel.DoWorkEventArgs)">
+            <summary>
+            Updates the _latestThreadID for creating new threads.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:MessengerWPF.MainWindow.LoadThreads">
+            <summary>
+            Updates the ThreadList
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.MainWindow.LoadContactInfo">
+            <summary>
+            Updates the contacts list
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.MainWindow.ProcessThreadId(System.Int32,System.Boolean,System.Int32)">
+            <summary>
+            Loads messages for a specified thread
+            </summary>
+            <param name="threadId"></param>
+            <param name="firstLoad"></param>
+            <param name="amountToLoad"></param>
+        </member>
+        <member name="M:MessengerWPF.MainWindow.SendPhotoButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Uses the Win32 OpenFileDialog function to load a photograph
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:MessengerWPF.MainWindow.LeaveThreadButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:MessengerWPF.MainWindow.AddToThread(System.Int32,System.Int32)">
+            <summary>
+            Adds a user to the specified thread
+            </summary>
+            <param name="threadId">The targeted thread</param>
+            <param name="employeeId">The payrollid of the targeted employee</param>
+        </member>
+        <member name="M:MessengerWPF.MainWindow.CheckThreadUsers(System.Int32,System.Boolean)">
+            <summary>
+            This function returns a list of Users in the thread
+            </summary>
+            <param name="threadId">The ID of the thread</param>
+            <param name="ignoreself">Boolean to check if the function should ignore the user</param>
+            <returns>A list of users in the specified thread</returns>
+        </member>
+        <member name="M:MessengerWPF.MainWindow.FindParent``1(System.Windows.DependencyObject)">
+            <summary>
+            
+            </summary>
+            <typeparam name="T">The required type</typeparam>
+            <param name="child">The current UI Object</param>
+            <returns>The specified UI element</returns>
+        </member>
+        <member name="M:MessengerWPF.MainWindow.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:MessengerWPF.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:MessengerWPF.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:MessengerWPF.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+    </members>
+</doc>
