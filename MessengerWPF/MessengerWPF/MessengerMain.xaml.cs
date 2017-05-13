@@ -861,9 +861,9 @@ namespace MessengerWPF
         }
         private void CreateNewThread(int employeeId)
         {
-            var checkForTwoWay = MSSQLPublic.SelectData("SELECT * from whldata.messenger_threads f where f.participantid ='" + AuthdEmployee.PayrollId.ToString()+ "' AND exists(SELECT * from whldata.messenger_threads s WHERE s.participantid = '" + employeeId.ToString()+ "' AND s.threadid = f.threadid) AND f.IsTwoWay = 1") as ArrayList;
+            var checkForTwoWay = MSSQLPublic.SelectDataDictionaryAsync("SELECT * from whldata.messenger_threads f where f.participantid ='" + AuthdEmployee.PayrollId.ToString()+ "' AND exists(SELECT * from whldata.messenger_threads s WHERE s.participantid = '" + employeeId.ToString()+ "' AND s.threadid = f.threadid) AND f.IsTwoWay = 1");
             if (checkForTwoWay == null) throw new Exception("SQL Query Failed");
-            if (checkForTwoWay.Count == 0)
+            if (checkForTwoWay.Result.Count == 0)
             {
                 var newThread = _latestThreadId + 1;
                 MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_threads (threadId, participantid,IsTwoWay) VALUES (" + newThread.ToString() + "," + AuthdEmployee.PayrollId.ToString() + ",1)");
@@ -904,7 +904,7 @@ namespace MessengerWPF
         }
         private bool CheckForUserInThread(int ThreadID, int EmployeeID)
         {
-            var results = MSSQLPublic.SelectData("SELECT * from whldata.messenger_threads WHERE participantid='" + EmployeeID.ToString() + "' AND threadid='" + ThreadID.ToString() + "'") as ArrayList;
+            var results = MSSQLPublic.SelectDataDictionary("SELECT * from whldata.messenger_threads WHERE participantid='" + EmployeeID.ToString() + "' AND threadid='" + ThreadID.ToString() + "'");
             if (results == null) return false;
             if (results.Count > 0) return true;
             else return false;
@@ -920,21 +920,21 @@ namespace MessengerWPF
             var returnList = new List<string>();
             try
             {
-                var query = MSSQLPublic.SelectData("SELECT participantid FROM whldata.messenger_threads WHERE threadId like '" + threadId.ToString() + "';") as ArrayList;
+                var query = MSSQLPublic.SelectDataDictionary("SELECT participantid FROM whldata.messenger_threads WHERE threadId like '" + threadId.ToString() + "';");
                 if (query == null) throw new Exception("SQL Query Failed");
-                foreach (ArrayList result in query)
+                foreach (var result in query)
                 {
                     if (ignoreself)
                     {
-                        if ((int.Parse(result[0].ToString()) != AuthdEmployee.PayrollId))
+                        if ((int.Parse(result["participantid"].ToString()) != AuthdEmployee.PayrollId))
                         //Check if we're a member of the thread
                         {
-                            returnList.Add(_empcol.FindEmployeeByID(int.Parse(result[0].ToString())).FullName);
+                            returnList.Add(_empcol.FindEmployeeByID(int.Parse(result["participantid"].ToString())).FullName);
                         }
                     }
                     else
                     {
-                        returnList.Add(_empcol.FindEmployeeByID(int.Parse(result[0].ToString())).FullName);
+                        returnList.Add(_empcol.FindEmployeeByID(int.Parse(result["participantid"].ToString())).FullName);
                     }
                 }
             }
