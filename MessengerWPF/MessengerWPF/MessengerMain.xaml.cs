@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -19,6 +20,7 @@ using MessengerWPF.MessageStorage;
 using WHLClasses;
 using WHLClasses.Notifications;
 using WHLClasses.SQL.SQLException;
+
 
 namespace MessengerWPF
 {
@@ -65,7 +67,7 @@ namespace MessengerWPF
         public MainWindow()
         {
             AuthdEmployee = null;
-            InitializeComponent();   
+            InitializeComponent();
         }
         /// <summary>
         /// Interaction for the program's initial load
@@ -90,7 +92,7 @@ namespace MessengerWPF
                 var loginwindow = new Login();
                 loginwindow.ShowDialog();
             }
-            _isOffline = MSSQLPublic.TestConn();
+            _isOffline = SQLServer.TestConn();
 
             _threadLoader.DoWork += ThreadLoader_DoWork;
             _threadLoader.WorkerSupportsCancellation = true;
@@ -130,7 +132,7 @@ namespace MessengerWPF
             var wasOffline = false;
             try
             {
-                while (!MSSQLPublic.TestConn())
+                while (!SQLServer.TestConn())
                 {
                     wasOffline = true;
                     _threadContactLoader.Stop();
@@ -176,8 +178,8 @@ namespace MessengerWPF
             {
                 messageQuery += " OR threadid = " + pair.Key;
             }
-            var results = MSSQLPublic.SelectDataDictionary(messageQuery);
-            var threadresults = MSSQLPublic.SelectDataDictionary(threadQuery);
+            var results = SQLServer.MSSelectDataDictionary(messageQuery);
+            var threadresults = SQLServer.MSSelectDataDictionary(threadQuery);
             foreach (var result in results)
             {
                 var query =
@@ -237,7 +239,7 @@ namespace MessengerWPF
         {
             try
             {           
-                var lastThread = MSSQLPublic.SelectData("SELECT TOP 1 threadId from whldata.messenger_threads ORDER BY threadId desc") as ArrayList;
+                var lastThread = SQLServer.SelectData("SELECT TOP 1 threadId from whldata.messenger_threads ORDER BY threadId desc") as ArrayList;
                 if (lastThread == null) throw new Exception("SQL Query Failed");
                 var latestThreadRow = lastThread[0] as ArrayList;
                 if (latestThreadRow == null) throw new Exception("SQL Query Failed");
@@ -256,7 +258,7 @@ namespace MessengerWPF
             ThreadsPanel.Children.Clear();
             try
             {
-                var threadListQuery = MSSQLPublic.SelectDataDictionary("SELECT a.*,b.messagecontent as Message,b.Timestamp as SendTime,b.participantid as sender FROM 	whldata.messenger_threads a Left Join (SELECT m1.* FROM whldata.messenger_messages m1 LEFT JOIN whldata.messenger_messages m2 ON (m1.threadid = m2.threadid AND m1.messageid < m2.messageid) WHERE m2.messageid IS NULL) b on b.threadid=a.threadId WHERE (a.participantid='" + AuthdEmployee.PayrollId.ToString() + "') ORDER BY b.timestamp DESC;");
+                var threadListQuery = SQLServer.MSSelectDataDictionary("SELECT a.*,b.messagecontent as Message,b.Timestamp as SendTime,b.participantid as sender FROM 	whldata.messenger_threads a Left Join (SELECT m1.* FROM whldata.messenger_messages m1 LEFT JOIN whldata.messenger_messages m2 ON (m1.threadid = m2.threadid AND m1.messageid < m2.messageid) WHERE m2.messageid IS NULL) b on b.threadid=a.threadId WHERE (a.participantid='" + AuthdEmployee.PayrollId.ToString() + "') ORDER BY b.timestamp DESC;");
                 if (threadListQuery == null) throw new Exception("SQL Query Failed");
                 foreach (var result in threadListQuery)
                 {
@@ -271,8 +273,9 @@ namespace MessengerWPF
                         refcontrol.ThreadUsers.Text = "";
                         foreach (var user in checkList)
                         {
-                            refcontrol.ThreadUsers.Text += user + " ";
+                            refcontrol.ThreadUsers.Text += user + ",";
                         }
+                        refcontrol.ThreadUsers.Text = refcontrol.ThreadUsers.Text.Trim().TrimEnd(',');
                         refcontrol.LastMessage.Text = result["message"].ToString();
                         refcontrol.MouseUp += HandleThreadClick;
                         refcontrol.InitializeComponent();
@@ -331,7 +334,7 @@ namespace MessengerWPF
             { 
                 if(firstLoad)
                 {
-                    var query = MSSQLPublic.SelectData("SELECT TOP "+amountToLoad.ToString()+" * from whldata.messenger_messages WHERE threadid like'" + threadId.ToString() + "' ORDER BY messageid desc") as ArrayList;
+                    var query = SQLServer.SelectData("SELECT TOP "+amountToLoad.ToString()+" * from whldata.messenger_messages WHERE threadid like'" + threadId.ToString() + "' ORDER BY messageid desc") as ArrayList;
                     if (query == null) throw new NullReferenceException();
                     query.Reverse();
                     queryResults = query;
@@ -341,7 +344,7 @@ namespace MessengerWPF
                 }
                 else
                 {
-                    var query = MSSQLPublic.SelectData("SELECT TOP " + amountToLoad.ToString() + " * from whldata.messenger_messages WHERE threadid like'" + threadId.ToString() + "' AND messageid > '"+ _lastMessageInThread.ToString() + "' ORDER BY messageid desc") as ArrayList;
+                    var query = SQLServer.SelectData("SELECT TOP " + amountToLoad.ToString() + " * from whldata.messenger_messages WHERE threadid like'" + threadId.ToString() + "' AND messageid > '"+ _lastMessageInThread.ToString() + "' ORDER BY messageid desc") as ArrayList;
                     if (query == null) throw new NullReferenceException();
                     query.Reverse();
                     queryResults = query;
@@ -547,7 +550,7 @@ namespace MessengerWPF
                 }
 
 
-                var lastMessage = MSSQLPublic.SelectDataDictionary("SELECT TOP 1 messageid from whldata.messenger_messages WHERE threadid like'" + threadId.ToString() + "' ORDER BY messageid desc");
+                var lastMessage = SQLServer.MSSelectDataDictionary("SELECT TOP 1 messageid from whldata.messenger_messages WHERE threadid like'" + threadId.ToString() + "' ORDER BY messageid desc");
                 if (lastMessage.Count > 0)
                 {
                     try
@@ -580,7 +583,7 @@ namespace MessengerWPF
             _notiStopwatch.Reset();
             _notiStopwatch.Start();
             _currentThreads.Clear();
-            var threads = MSSQLPublic.SelectDataDictionary("SELECT threadid from whldata.messenger_threads WHERE participantid='" + AuthdEmployee.PayrollId.ToString() + "'ORDER BY threadid desc");
+            var threads = SQLServer.MSSelectDataDictionary("SELECT threadid from whldata.messenger_threads WHERE participantid='" + AuthdEmployee.PayrollId.ToString() + "'ORDER BY threadid desc");
             if (threads != null)
             {
                 foreach (var result in threads)
@@ -591,7 +594,7 @@ namespace MessengerWPF
             _userLastThreadNoti.Clear();
             foreach (var entry in _currentThreads)
             {
-                var latestMessage = MSSQLPublic.SelectData("SELECT TOP 1 messageid from whldata.messenger_messages WHERE threadid='" + entry.Key + "' ORDER BY messageid desc;") as ArrayList;
+                var latestMessage = SQLServer.SelectData("SELECT TOP 1 messageid from whldata.messenger_messages WHERE threadid='" + entry.Key + "' ORDER BY messageid desc;") as ArrayList;
                 if (latestMessage == null || latestMessage.Count == 0) continue;
                 try
                 {
@@ -650,7 +653,7 @@ namespace MessengerWPF
             foreach (var threads in userLastThreadSafe)
             {
                 if (threads.Key == _currentThread) continue;
-                var latestMessage = MSSQLPublic.SelectDataDictionary("SELECT * from whldata.messenger_messages WHERE threadid='"+threads.Key.ToString()+"' AND messageid > '"+threads.Value.ToString() + "';") ;
+                var latestMessage = SQLServer.MSSelectDataDictionary("SELECT * from whldata.messenger_messages WHERE threadid='"+threads.Key.ToString()+"' AND messageid > '"+threads.Value.ToString() + "';") ;
                 if (latestMessage == null || latestMessage.Count == 0) continue;
                 foreach (var result in latestMessage)
                 {
@@ -852,22 +855,22 @@ namespace MessengerWPF
         /// <param name="employeeId">The payrollid of the targeted employee</param>
         private void AddToThread(int threadId,int employeeId)
         {
-            if (!(CheckForUserInThread(threadId,employeeId)))
+            if (!CheckForUserInThread(threadId,employeeId))
             {
-               MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_threads(threadId, participantid,IsTwoWay) VALUES('" + threadId.ToString() + "', '" + employeeId.ToString() + "',0);");
-               MSSQLPublic.insertUpdate("UPDATE whldata.messenger_threads SET IsTwoWay=0 WHERE threadid='"+threadId.ToString()+"'");
+                SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_threads(threadId, participantid,IsTwoWay) VALUES('" + threadId.ToString() + "', '" + employeeId.ToString() + "',0);");
+                SQLServer.MSInsertUpdate("UPDATE whldata.messenger_threads SET IsTwoWay=0 WHERE threadid='"+threadId.ToString()+"'");
                LoadThreads();
             }
         }
         private void CreateNewThread(int employeeId)
         {
-            var checkForTwoWay = MSSQLPublic.SelectDataDictionaryAsync("SELECT * from whldata.messenger_threads f where f.participantid ='" + AuthdEmployee.PayrollId.ToString()+ "' AND exists(SELECT * from whldata.messenger_threads s WHERE s.participantid = '" + employeeId.ToString()+ "' AND s.threadid = f.threadid) AND f.IsTwoWay = 1");
+            var checkForTwoWay = SQLServer.MSSelectDataDictionaryAsync("SELECT * from whldata.messenger_threads f where f.participantid ='" + AuthdEmployee.PayrollId.ToString()+ "' AND exists(SELECT * from whldata.messenger_threads s WHERE s.participantid = '" + employeeId.ToString()+ "' AND s.threadid = f.threadid) AND f.IsTwoWay = 1");
             if (checkForTwoWay == null) throw new Exception("SQL Query Failed");
             if (checkForTwoWay.Result.Count == 0)
             {
                 var newThread = _latestThreadId + 1;
-                MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_threads (threadId, participantid,IsTwoWay) VALUES (" + newThread.ToString() + "," + AuthdEmployee.PayrollId.ToString() + ",1)");
-                MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_threads (threadId, participantid,IsTwoWay) VALUES (" + newThread.ToString() + "," + employeeId.ToString() + ",1)");
+                SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_threads (threadId, participantid,IsTwoWay) VALUES (" + newThread.ToString() + "," + AuthdEmployee.PayrollId.ToString() + ",1)");
+                SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_threads (threadId, participantid,IsTwoWay) VALUES (" + newThread.ToString() + "," + employeeId.ToString() + ",1)");
                 _currentThread = newThread;
                 MessageStack.Children.Clear();
                 LoadThreads();
@@ -876,8 +879,8 @@ namespace MessengerWPF
 
         private void RemoveFromThread(int threadId, int employeeid)
         {
-            MSSQLPublic.insertUpdate("DELETE FROM whldata.messenger_threads WHERE threadid='"+threadId.ToString()+ "' AND participantid = '"+employeeid.ToString()+"';");
-            MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_messages  (participantid,messagecontent,timestamp,threadid) VALUES (0,N'"+ _empcol.FindEmployeeByID(employeeid).FullName + " has been removed from the thread',Current_timestamp,'" + threadId.ToString() + ")");
+            SQLServer.MSInsertUpdate("DELETE FROM whldata.messenger_threads WHERE threadid='"+threadId.ToString()+ "' AND participantid = '"+employeeid.ToString()+"';");
+            SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_messages  (participantid,messagecontent,timestamp,threadid) VALUES (0,N'"+ _empcol.FindEmployeeByID(employeeid).FullName + " has been removed from the thread',Current_timestamp,'" + threadId.ToString() + ")");
         }
         #endregion
         #region Functions
@@ -891,7 +894,7 @@ namespace MessengerWPF
                 safeMsg = safeMsg.Trim();
                 if (safeMsg != "")
                 {
-                    MSSQLPublic.insertUpdate("INSERT INTO whldata.messenger_messages (participantid,messagecontent,timestamp,threadid) VALUES (" + AuthdEmployee.PayrollId.ToString() + ",N'" + safeMsg + "','" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "','" + ThreadID.ToString() + "')");
+                    SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_messages (participantid,messagecontent,timestamp,threadid) VALUES (" + AuthdEmployee.PayrollId.ToString() + ",N'" + safeMsg + "','" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "','" + ThreadID.ToString() + "')");
                 }
                 return true;
             }
@@ -904,7 +907,7 @@ namespace MessengerWPF
         }
         private bool CheckForUserInThread(int ThreadID, int EmployeeID)
         {
-            var results = MSSQLPublic.SelectDataDictionary("SELECT * from whldata.messenger_threads WHERE participantid='" + EmployeeID.ToString() + "' AND threadid='" + ThreadID.ToString() + "'");
+            var results = SQLServer.MSSelectDataDictionary("SELECT * from whldata.messenger_threads WHERE participantid='" + EmployeeID.ToString() + "' AND threadid='" + ThreadID.ToString() + "'");
             if (results == null) return false;
             if (results.Count > 0) return true;
             else return false;
@@ -920,7 +923,7 @@ namespace MessengerWPF
             var returnList = new List<string>();
             try
             {
-                var query = MSSQLPublic.SelectDataDictionary("SELECT participantid FROM whldata.messenger_threads WHERE threadId like '" + threadId.ToString() + "';");
+                var query = SQLServer.MSSelectDataDictionary("SELECT participantid FROM whldata.messenger_threads WHERE threadId like '" + threadId.ToString() + "';");
                 if (query == null) throw new Exception("SQL Query Failed");
                 foreach (var result in query)
                 {
