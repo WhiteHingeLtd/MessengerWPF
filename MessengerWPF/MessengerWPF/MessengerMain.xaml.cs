@@ -356,7 +356,7 @@ namespace MessengerWPF
             { }
             try
             {
-                if (who.Contains(AuthdEmployee))
+                if (!who.Contains(AuthdEmployee))
                 {
                     firstLoad = false;
                     _currentThread = -1;
