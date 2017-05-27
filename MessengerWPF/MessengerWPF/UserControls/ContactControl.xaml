@@ -12,7 +12,7 @@
             </Grid.ColumnDefinitions>
             <Button x:Name="ThreadUsers" Margin="2.25,2" Foreground="White" FontSize="14" Content="" Background="#00000000" BorderThickness="0.5" BorderBrush="{x:Null}" Style="{DynamicResource Button.Hoverless}"/>
             <Button x:Name="AddToThreadButton" Grid.Column="1" BorderThickness="0.5" Margin="2,2,1,2" BorderBrush="{x:Null}" Background="#00000000" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Style="{DynamicResource Button.Hoverless}">
-                <Image Height="12.5" Width="12.25" Source="addicon.png" HorizontalAlignment="Right"/>
+                <Image x:Name="AddImage" Height="12.5" Width="12.25" Source="addicon.png" HorizontalAlignment="Right"/>
 
             </Button>
 

@@ -111,10 +111,18 @@
             
             </summary>
         </member>
-        <member name="M:MessengerWPF.UserControls.ContactControl.#ctor">
+        <member name="M:MessengerWPF.UserControls.ContactControl.#ctor(System.Boolean)">
             <summary>
             
             </summary>
+            <param name="ForCurrent"></param>
+        </member>
+        <member name="M:MessengerWPF.UserControls.ContactControl.#ctor(WHLClasses.Employee,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="emp"></param>
+            <param name="ForCurrent"></param>
         </member>
         <member name="M:MessengerWPF.UserControls.ContactControl.InitializeComponent">
             <summary>

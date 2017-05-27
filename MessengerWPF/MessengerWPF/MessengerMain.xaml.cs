@@ -1,5 +1,6 @@
 ﻿using MessengerWPF.UserControls;
 using System;
+using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,6 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -273,7 +275,7 @@ namespace MessengerWPF
                         refcontrol.ThreadUsers.Text = "";
                         foreach (var user in checkList)
                         {
-                            refcontrol.ThreadUsers.Text += user + ",";
+                            refcontrol.ThreadUsers.Text += user.FullName + ",";
                         }
                         refcontrol.ThreadUsers.Text = refcontrol.ThreadUsers.Text.Trim().TrimEnd(',');
                         refcontrol.LastMessage.Text = result["message"].ToString();
@@ -328,7 +330,7 @@ namespace MessengerWPF
         {
            
             GC.Collect();
-            
+            var who = CheckThreadUsers(threadId, false);
             var queryResults = null as ArrayList;
             try
             { 
@@ -354,72 +356,149 @@ namespace MessengerWPF
             { }
             try
             {
-                
-                if (queryResults == null) throw new Exception("SQL Query Failed");
-                if (queryResults.Count == 0) return;
-                foreach (ArrayList result in queryResults)
+                if (who.Contains(AuthdEmployee))
                 {
-                    var message = result[2].ToString().ToLower();
-                    if (message.Contains(".jpg") || message.Contains(".jpeg") || message.Contains(".png"))
+                    firstLoad = false;
+                    _currentThread = -1;
+                    MessageStack.Children.Clear();
+                    _lastMessageInThread = -1;
+                    who.Clear();
+                }
+                else if (queryResults == null) throw new Exception("SQL Query Failed");
+                else if (queryResults.Count == 0) return;
+                else
+                {
+                    foreach (ArrayList result in queryResults)
                     {
-                        if (result[1].ToString() == AuthdEmployee.PayrollId.ToString())
+                        var message = result[2].ToString().ToLower();
+                        if (message.Contains(".jpg") || message.Contains(".jpeg") || message.Contains(".png"))
                         {
-                            var msg = new UserPictureControl();
-                            msg.ImageContainer.Source = new BitmapImage(new Uri(message));
-                            msg.InitializeComponent();
-                            msg.MouseUp += Msg_MouseUp;
-                            msg.TouchUp += Msg_TouchUp;
-                            MessageStack.Children.Add(msg);
-                        }
-                        else
-                        {
-                            var otherMsg = new OtherPictureControl();
-                            otherMsg.ImageContainer.Source = new BitmapImage(new Uri(message));
-                            otherMsg.SenderName.Text = _empcol.FindEmployeeByID(int.Parse(result[1].ToString())).FullName;
-                            otherMsg.MouseUp += OtherMsg_MouseUp;
-                            otherMsg.TouchUp += OtherMsg_TouchUp;
-                            otherMsg.InitializeComponent();
-                            MessageStack.Children.Add(otherMsg);
-                        }
-                    }
-                    else if (message.Contains("https://") || message.Contains("http://"))
-                    {
-                        if (result[1].ToString() == AuthdEmployee.PayrollId.ToString())
-                        {
-                            var msg = new SelfMessage();
-                            msg.FromMessageBox.Text = "";
-                            msg.FromMessageBox.Inlines.Clear();
-                            var splitStrings = Regex.Split(result[2].ToString(), " ");
-                            
-                            foreach (var splits in splitStrings)
+                            if (result[1].ToString() == AuthdEmployee.PayrollId.ToString())
                             {
-                                if (splits.Contains("http://") || splits.Contains("https://"))
+                                var msg = new UserPictureControl();
+                                msg.ImageContainer.Source = new BitmapImage(new Uri(message));
+                                msg.InitializeComponent();
+                                msg.MouseUp += Msg_MouseUp;
+                                msg.TouchUp += Msg_TouchUp;
+                                MessageStack.Children.Add(msg);
+                            }
+                            else
+                            {
+                                var otherMsg = new OtherPictureControl();
+                                otherMsg.ImageContainer.Source = new BitmapImage(new Uri(message));
+                                otherMsg.SenderName.Text = _empcol.FindEmployeeByID(int.Parse(result[1].ToString())).FullName;
+                                otherMsg.MouseUp += OtherMsg_MouseUp;
+                                otherMsg.TouchUp += OtherMsg_TouchUp;
+                                otherMsg.InitializeComponent();
+                                MessageStack.Children.Add(otherMsg);
+                            }
+                        }
+                        else if (message.Contains("https://") || message.Contains("http://"))
+                        {
+                            if (result[1].ToString() == AuthdEmployee.PayrollId.ToString())
+                            {
+                                var msg = new SelfMessage();
+                                msg.FromMessageBox.Text = "";
+                                msg.FromMessageBox.Inlines.Clear();
+                                var splitStrings = Regex.Split(result[2].ToString(), " ");
+                            
+                                foreach (var splits in splitStrings)
                                 {
-                                    var splitHyperlinks = Regex.Split(splits, " ");
-                                    foreach (var hyperLinks in splitHyperlinks)
+                                    if (splits.Contains("http://") || splits.Contains("https://"))
                                     {
-                                        if (hyperLinks.Contains("http://") || hyperLinks.Contains("https://"))
+                                        var splitHyperlinks = Regex.Split(splits, " ");
+                                        foreach (var hyperLinks in splitHyperlinks)
                                         {
-                                            var newHyperLink = new Hyperlink
+                                            if (hyperLinks.Contains("http://") || hyperLinks.Contains("https://"))
                                             {
-                                                NavigateUri = new Uri(hyperLinks),
-                                            };
-                                            newHyperLink.Inlines.Add(hyperLinks);
-                                            newHyperLink.RequestNavigate += NewHyperLink_RequestNavigate;
-                                            msg.FromMessageBox.Inlines.Add(newHyperLink);
-                                            msg.FromMessageBox.Inlines.Add(" ");
+                                                var newHyperLink = new Hyperlink
+                                                {
+                                                    NavigateUri = new Uri(hyperLinks),
+                                                };
+                                                newHyperLink.Inlines.Add(hyperLinks);
+                                                newHyperLink.RequestNavigate += NewHyperLink_RequestNavigate;
+                                                msg.FromMessageBox.Inlines.Add(newHyperLink);
+                                                msg.FromMessageBox.Inlines.Add(" ");
+                                            }
+                                            else
+                                            {
+                                                msg.FromMessageBox.Inlines.Add(splits + " ");
+                                            }
                                         }
+                                    }
+                                    else
+                                    {
+                                        msg.FromMessageBox.Inlines.Add(splits + " ");
+                                    }
+                                }
+                                msg.InitializeComponent();
+                                MessageStack.Children.Add(msg);
+                            }
+                            else if (result[1].ToString() == "0")
+                            {
+                                var msg = new SystemNotiControl();
+                                msg.SystemNoti.Text = result[2].ToString();
+                                msg.InitializeComponent();
+                                MessageStack.Children.Add(msg);
+                            }
+                            else if (result[1].ToString() != AuthdEmployee.PayrollId.ToString())
+                            {
+                                var msg = new OtherMessage();
+                                msg.OtherMessageBox.Text = "";
+                                msg.OtherMessageBox.Inlines.Clear();
+                                var splitStrings = Regex.Split(result[2].ToString(), " ");
+                                var lastString = splitStrings.Last();
+                                foreach (var splits in splitStrings)
+                                {
+                                    bool isLast;
+                                    if (splits == lastString) isLast = true;
+                                    else isLast = false;
+                                    if (splits.Contains("http://") || splits.Contains("https://"))
+                                    {
+                                        var splitHyperlinks = Regex.Split(splits, " ");
+                                        foreach (var hyperLinks in splitHyperlinks)
+                                        {
+                                            if (hyperLinks.Contains("http://") || hyperLinks.Contains("https://"))
+                                            {
+                                                var newHyperLink = new Hyperlink();
+                                                newHyperLink.NavigateUri = new Uri(hyperLinks);
+                                                newHyperLink.Inlines.Add(hyperLinks);
+                                                newHyperLink.RequestNavigate += NewHyperLink_RequestNavigate;
+                                                if (isLast) msg.OtherMessageBox.Inlines.Add(newHyperLink);
+                                                else
+                                                {
+                                                    msg.OtherMessageBox.Inlines.Add(newHyperLink + " ");
+                                                }
+                                            
+                                            }
+                                            else
+                                            {
+                                                if (isLast) msg.OtherMessageBox.Inlines.Add(splits);
+                                                else
+                                                {
+                                                    msg.OtherMessageBox.Inlines.Add(splits + " ");
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (isLast) msg.OtherMessageBox.Inlines.Add(splits);
                                         else
                                         {
-                                            msg.FromMessageBox.Inlines.Add(splits + " ");
+                                            msg.OtherMessageBox.Inlines.Add(splits + " ");
                                         }
                                     }
                                 }
-                                else
-                                {
-                                    msg.FromMessageBox.Inlines.Add(splits + " ");
-                                }
+                                msg.SenderName.Text = _empcol.FindEmployeeByID(int.Parse(result[1].ToString())).FullName;
+                                msg.InitializeComponent();
+                                MessageStack.Children.Add(msg);
                             }
+                        }
+                        else if (result[1].ToString() == AuthdEmployee.PayrollId.ToString())
+                        {
+                            var msg = new SelfMessage();
+                            msg.FromMessageBox.Text = result[2].ToString();
                             msg.InitializeComponent();
                             MessageStack.Children.Add(msg);
                         }
@@ -433,89 +512,22 @@ namespace MessengerWPF
                         else if (result[1].ToString() != AuthdEmployee.PayrollId.ToString())
                         {
                             var msg = new OtherMessage();
-                            msg.OtherMessageBox.Text = "";
-                            msg.OtherMessageBox.Inlines.Clear();
-                            var splitStrings = Regex.Split(result[2].ToString(), " ");
-                            var lastString = splitStrings.Last();
-                            foreach (var splits in splitStrings)
-                            {
-                                bool isLast;
-                                if (splits == lastString) isLast = true;
-                                else isLast = false;
-                                if (splits.Contains("http://") || splits.Contains("https://"))
-                                {
-                                    var splitHyperlinks = Regex.Split(splits, " ");
-                                    foreach (var hyperLinks in splitHyperlinks)
-                                    {
-                                        if (hyperLinks.Contains("http://") || hyperLinks.Contains("https://"))
-                                        {
-                                            var newHyperLink = new Hyperlink();
-                                            newHyperLink.NavigateUri = new Uri(hyperLinks);
-                                            newHyperLink.Inlines.Add(hyperLinks);
-                                            newHyperLink.RequestNavigate += NewHyperLink_RequestNavigate;
-                                            if (isLast) msg.OtherMessageBox.Inlines.Add(newHyperLink);
-                                            else
-                                            {
-                                                msg.OtherMessageBox.Inlines.Add(newHyperLink + " ");
-                                            }
-                                            
-                                        }
-                                        else
-                                        {
-                                            if (isLast) msg.OtherMessageBox.Inlines.Add(splits);
-                                            else
-                                            {
-                                                msg.OtherMessageBox.Inlines.Add(splits + " ");
-                                            }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    if (isLast) msg.OtherMessageBox.Inlines.Add(splits);
-                                    else
-                                    {
-                                        msg.OtherMessageBox.Inlines.Add(splits + " ");
-                                    }
-                                }
-                            }
-                            msg.SenderName.Text = _empcol.FindEmployeeByID(int.Parse(result[1].ToString())).FullName;
+                            msg.OtherMessageBox.Text = result[2].ToString();
+                            msg.SenderName.Text = _empcol.FindEmployeeByID(Int32.Parse(result[1].ToString())).FullName;
                             msg.InitializeComponent();
                             MessageStack.Children.Add(msg);
-                        }
-                    }
-                    else if (result[1].ToString() == AuthdEmployee.PayrollId.ToString())
-                    {
-                        var msg = new SelfMessage();
-                        msg.FromMessageBox.Text = result[2].ToString();
-                        msg.InitializeComponent();
-                        MessageStack.Children.Add(msg);
-                    }
-                    else if (result[1].ToString() == "0")
-                    {
-                        var msg = new SystemNotiControl();
-                        msg.SystemNoti.Text = result[2].ToString();
-                        msg.InitializeComponent();
-                        MessageStack.Children.Add(msg);
-                    }
-                    else if (result[1].ToString() != AuthdEmployee.PayrollId.ToString())
-                    {
-                        var msg = new OtherMessage();
-                        msg.OtherMessageBox.Text = result[2].ToString();
-                        msg.SenderName.Text = _empcol.FindEmployeeByID(Int32.Parse(result[1].ToString())).FullName;
-                        msg.InitializeComponent();
-                        MessageStack.Children.Add(msg);
 
-                        if (!firstLoad)
-                        {
-                            TextOnlyNotification[] notiText =
+                            if (!firstLoad)
                             {
-                                new TextOnlyNotification(result[2].ToString(), HandleNoti)
-                            };
-                            Notification.CreateNotification("Messenger", notiText,20);
+                                TextOnlyNotification[] notiText =
+                                {
+                                    new TextOnlyNotification(result[2].ToString(), HandleNoti)
+                                };
+                                Notification.CreateNotification("Messenger", notiText,20);
+                            }
                         }
-                    }
 
+                    }
                 }
             }
             catch (Exception e)
@@ -532,18 +544,33 @@ namespace MessengerWPF
             finally
             {
                 if (firstLoad) MessageScrollviewer.ScrollToEnd(); //Only scrolls to end on first load
-                var who = CheckThreadUsers(threadId, false);
+
                 ThreadUserTextBlock.Text = "";
-                if (who == null)
+                if (firstLoad)
+                {
+                    CurrentThreadPanel.Children.Clear();
+                    foreach (var result in who)
+                    {
+                        var ctrl = new ContactControl(result);
+                        ctrl.ThreadUsers.Content = result.FullName;
+                        ctrl.AddToThreadButton.Click += RemoveFromThreadClick;
+                        ctrl.InitializeComponent();
+                        CurrentThreadPanel.Children.Add(ctrl);
+
+                    }
+                }
+                
+                if (who == null || who.Count == 0)
                 {
                     ThreadUserTextBlock.Text = "";
 
                 }
                 else
                 {
+                    
                     foreach (var result in who)
                     {
-                        ThreadUserTextBlock.Text += result + ", ";
+                        ThreadUserTextBlock.Text += result.FullName + ", ";
                     }
                     char[] removecomma = { ',', ' ' };
                     ThreadUserTextBlock.Text = ThreadUserTextBlock.Text.TrimEnd(removecomma);
@@ -570,6 +597,16 @@ namespace MessengerWPF
             
 
         }
+
+        private void RemoveFromThreadClick(object sender, RoutedEventArgs routedEventArgs)
+        {
+            if (_currentThread != -1)
+            {
+                var parent = FindParent<ContactControl>(sender as Button) as ContactControl;
+                RemoveFromThread(_currentThread, parent.EmployeeID);
+            }
+        }
+
         private void NewHyperLink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
         {
             Process.Start(e.Uri.ToString());
@@ -880,7 +917,7 @@ namespace MessengerWPF
         private void RemoveFromThread(int threadId, int employeeid)
         {
             SQLServer.MSInsertUpdate("DELETE FROM whldata.messenger_threads WHERE threadid='"+threadId.ToString()+ "' AND participantid = '"+employeeid.ToString()+"';");
-            SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_messages  (participantid,messagecontent,timestamp,threadid) VALUES (0,N'"+ _empcol.FindEmployeeByID(employeeid).FullName + " has been removed from the thread',Current_timestamp,'" + threadId.ToString() + ")");
+            SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_messages  (participantid,messagecontent,timestamp,threadid) VALUES (0,N'"+ _empcol.FindEmployeeByID(employeeid).FullName + " has been removed from the thread',Current_timestamp,'" + threadId.ToString() + "')");
         }
         #endregion
         #region Functions
@@ -918,9 +955,9 @@ namespace MessengerWPF
         /// <param name="threadId">The ID of the thread</param>
         /// <param name="ignoreself">Boolean to check if the function should ignore the user</param>
         /// <returns>A list of users in the specified thread</returns>
-        private List<string> CheckThreadUsers(int threadId, bool ignoreself = true)
+        private List<Employee> CheckThreadUsers(int threadId, bool ignoreself = true)
         {
-            var returnList = new List<string>();
+            var returnList = new List<Employee>();
             try
             {
                 var query = SQLServer.MSSelectDataDictionary("SELECT participantid FROM whldata.messenger_threads WHERE threadId like '" + threadId.ToString() + "';");
@@ -932,12 +969,12 @@ namespace MessengerWPF
                         if ((int.Parse(result["participantid"].ToString()) != AuthdEmployee.PayrollId))
                         //Check if we're a member of the thread
                         {
-                            returnList.Add(_empcol.FindEmployeeByID(int.Parse(result["participantid"].ToString())).FullName);
+                            returnList.Add(_empcol.FindEmployeeByID(int.Parse(result["participantid"].ToString())));
                         }
                     }
                     else
                     {
-                        returnList.Add(_empcol.FindEmployeeByID(int.Parse(result["participantid"].ToString())).FullName);
+                        returnList.Add(_empcol.FindEmployeeByID(int.Parse(result["participantid"].ToString())));
                     }
                 }
             }

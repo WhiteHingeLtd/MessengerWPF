@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Messenger" Height="700" Width="900" Background="{x:Null}" Loaded="Messenger_Loaded" Closed="Messenger_Closed">
-    
-    <Window.Resources>
+
+    <!--<Window.Resources>
         <Storyboard x:Key="OptionsOpen">
 
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="OptionsGrid">
@@ -37,7 +37,7 @@
         <EventTrigger RoutedEvent="ButtonBase.Click" SourceName="OptionsCloseButton">
             <BeginStoryboard x:Name="OptionsClose_BeginStoryboard" Storyboard="{StaticResource OptionsClose}"/>
         </EventTrigger>
-    </Window.Triggers>
+    </Window.Triggers>-->
 
     <Grid Background="White">
 
@@ -48,7 +48,7 @@
 
         <Grid x:Name="ThreadsGrid" HorizontalAlignment="Left" Margin="0,56,0,0" Width="261">
             <TabControl SelectionChanged="TabControl_SelectionChanged" Margin="0,0,0,0.5">
-                <TabItem x:Name="ThreadsTab" Header="Messages">
+                <TabItem x:Name="ThreadsTab" Header="Messages" Margin="-2,-2,2,0">
                     <Grid Background="#FFE5E5E5">
                         <ScrollViewer PanningMode="VerticalOnly" VerticalScrollBarVisibility="Auto" CanContentScroll="True" Background="LightGray">
                             <StackPanel x:Name="ThreadsPanel" Margin="0,0,-0.5,0.5"/>
@@ -59,6 +59,17 @@
                     <Grid Background="#FFE5E5E5">
                         <ScrollViewer PanningMode="VerticalOnly" VerticalScrollBarVisibility="Auto" CanContentScroll="True" Background="LightGray">
                             <StackPanel x:Name="ContactsPanel" Margin="0,0,-0.5,0.5"/>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem>
+                <TabItem x:Name="CurrentTab" Header="Current Thread" Margin="13,-2,-17,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                        </Grid.RowDefinitions>
+                        <ScrollViewer PanningMode="VerticalOnly" VerticalScrollBarVisibility="Auto" CanContentScroll="True" Background="LightGray">
+                            <StackPanel x:Name="CurrentThreadPanel" Margin="0,0,-0.5,0.5"/>
                         </ScrollViewer>
                     </Grid>
                 </TabItem>
@@ -112,5 +123,13 @@
             <Button x:Name="LeaveThreadButton" Content="Button" HorizontalAlignment="Left" Margin="79,0,0,0" VerticalAlignment="Top" Width="30" Height="30" Click="LeaveThreadButton_Click"/>
 
         </Grid>
+        <TabControl HorizontalAlignment="Left" Height="3" Margin="-193,180,0,0" VerticalAlignment="Top" Width="0">
+            <TabItem Header="TabItem">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Header="TabItem">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
