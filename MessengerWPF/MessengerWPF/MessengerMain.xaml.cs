@@ -852,7 +852,7 @@ namespace MessengerWPF
             {
                 Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
                 dlg.DefaultExt = ".jpg";
-                dlg.Filter = "JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|JPG Files (*.jpg)|*.jpg";
+                dlg.Filter = "Image Files |*.jpeg;*.png;*.jpg";
 
 
 
@@ -918,6 +918,11 @@ namespace MessengerWPF
         {
             SQLServer.MSInsertUpdate("DELETE FROM whldata.messenger_threads WHERE threadid='"+threadId.ToString()+ "' AND participantid = '"+employeeid.ToString()+"';");
             SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_messages  (participantid,messagecontent,timestamp,threadid) VALUES (0,N'"+ _empcol.FindEmployeeByID(employeeid).FullName + " has been removed from the thread',Current_timestamp,'" + threadId.ToString() + "')");
+            if (CheckThreadUsers(_currentThread).Count == 0)
+            {
+                _currentThread = -1;
+                TypeBox.IsReadOnly = true;
+            }
         }
         #endregion
         #region Functions

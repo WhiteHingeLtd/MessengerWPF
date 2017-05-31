@@ -139,8 +139,8 @@
         </member>
         <member name="M:MessengerWPF.UserControls.OtherMessage.#ctor">
             <summary>
-            Message user control from other users
-            </summary>
+            Message user control from 
+            </summary>other users
         </member>
         <member name="M:MessengerWPF.UserControls.OtherMessage.InitializeComponent">
             <summary>
