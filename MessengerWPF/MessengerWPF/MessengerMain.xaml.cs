@@ -1,15 +1,14 @@
-﻿using MessengerWPF.UserControls;
+﻿using MessengerWPF.MessageStorage;
+using MessengerWPF.UserControls;
 using System;
-using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,7 +17,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using MessengerWPF.MessageStorage;
 using WHLClasses;
 using WHLClasses.Notifications;
 using WHLClasses.SQL.SQLException;
@@ -171,6 +169,8 @@ namespace MessengerWPF
         /// <summary>
         /// SqLite Test
         /// </summary>
+        [SuppressMessage("ReSharper", "RedundantToStringCall")]
+        [SuppressMessage("ReSharper", "RedundantToStringCallForValueType")]
         private void _SqLiteWriter_DoWork(object sender, DoWorkEventArgs e)
         {
             var messageQuery = "SELECT * from whldata.messenger_messages WHERE threadID = 0 ";
@@ -186,6 +186,7 @@ namespace MessengerWPF
             {
                 var query =
                     "REPLACE INTO messenger_messages (messageid,participantid,messagecontent,timestamp,threadid) VALUES ('" +
+                    
                     result["messageid"].ToString() + "','" + result["participantid"].ToString() + "','" +
                     result["messagecontent"] + "','" + result["timestamp"].ToString() + "','" + result["threadid"].ToString() + "');";
                 Console.WriteLine(SqLite.SqliteOtherQuery(query));
@@ -269,10 +270,9 @@ namespace MessengerWPF
                     {
                         var refcontrol = new ThreadControl
                         {
-                            ThreadId = int.Parse(result["threadid"].ToString())
-                            
+                            ThreadId = int.Parse(result["threadid"].ToString()),
+                            ThreadUsers = {Text = ""}
                         };
-                        refcontrol.ThreadUsers.Text = "";
                         foreach (var user in checkList)
                         {
                             refcontrol.ThreadUsers.Text += user.FullName + ",";
@@ -308,9 +308,9 @@ namespace MessengerWPF
                 {
                     var ctrl = new ContactControl
                     {
-                        EmployeeID = emp.PayrollId,                       
+                        EmployeeID = emp.PayrollId,
+                        ThreadUsers = {Content = emp.FullName},
                     };
-                    ctrl.ThreadUsers.Content = emp.FullName;
                     ctrl.ThreadUsers.Click += ThreadUsers_Click;
                     ctrl.AddToThreadButton.Click += AddToThreadButton_Click;
                     ctrl.InitializeComponent();
@@ -365,7 +365,10 @@ namespace MessengerWPF
                     who.Clear();
                 }
                 else if (queryResults == null) throw new Exception("SQL Query Failed");
-                else if (queryResults.Count == 0) return;
+                else if (queryResults.Count == 0)
+                {
+                    return;
+                }
                 else
                 {
                     foreach (ArrayList result in queryResults)
@@ -384,9 +387,15 @@ namespace MessengerWPF
                             }
                             else
                             {
-                                var otherMsg = new OtherPictureControl();
-                                otherMsg.ImageContainer.Source = new BitmapImage(new Uri(message));
-                                otherMsg.SenderName.Text = _empcol.FindEmployeeByID(int.Parse(result[1].ToString())).FullName;
+                                var otherMsg =
+                                    new OtherPictureControl
+                                    {
+                                        ImageContainer = {Source = new BitmapImage(new Uri(message))},
+                                        SenderName =
+                                        {
+                                            Text = _empcol.FindEmployeeByID(int.Parse(result[1].ToString())).FullName
+                                        }
+                                    };
                                 otherMsg.MouseUp += OtherMsg_MouseUp;
                                 otherMsg.TouchUp += OtherMsg_TouchUp;
                                 otherMsg.InitializeComponent();
@@ -397,8 +406,7 @@ namespace MessengerWPF
                         {
                             if (result[1].ToString() == AuthdEmployee.PayrollId.ToString())
                             {
-                                var msg = new SelfMessage();
-                                msg.FromMessageBox.Text = "";
+                                var msg = new SelfMessage {FromMessageBox = {Text = ""}};
                                 msg.FromMessageBox.Inlines.Clear();
                                 var splitStrings = Regex.Split(result[2].ToString(), " ");
                             
@@ -436,23 +444,19 @@ namespace MessengerWPF
                             }
                             else if (result[1].ToString() == "0")
                             {
-                                var msg = new SystemNotiControl();
-                                msg.SystemNoti.Text = result[2].ToString();
+                                var msg = new SystemNotiControl {SystemNoti = {Text = result[2].ToString()}};
                                 msg.InitializeComponent();
                                 MessageStack.Children.Add(msg);
                             }
                             else if (result[1].ToString() != AuthdEmployee.PayrollId.ToString())
                             {
-                                var msg = new OtherMessage();
-                                msg.OtherMessageBox.Text = "";
+                                var msg = new OtherMessage {OtherMessageBox = {Text = ""}};
                                 msg.OtherMessageBox.Inlines.Clear();
                                 var splitStrings = Regex.Split(result[2].ToString(), " ");
                                 var lastString = splitStrings.Last();
                                 foreach (var splits in splitStrings)
                                 {
-                                    bool isLast;
-                                    if (splits == lastString) isLast = true;
-                                    else isLast = false;
+                                    var isLast = splits == lastString;
                                     if (splits.Contains("http://") || splits.Contains("https://"))
                                     {
                                         var splitHyperlinks = Regex.Split(splits, " ");
@@ -460,8 +464,7 @@ namespace MessengerWPF
                                         {
                                             if (hyperLinks.Contains("http://") || hyperLinks.Contains("https://"))
                                             {
-                                                var newHyperLink = new Hyperlink();
-                                                newHyperLink.NavigateUri = new Uri(hyperLinks);
+                                                var newHyperLink = new Hyperlink {NavigateUri = new Uri(hyperLinks)};
                                                 newHyperLink.Inlines.Add(hyperLinks);
                                                 newHyperLink.RequestNavigate += NewHyperLink_RequestNavigate;
                                                 if (isLast) msg.OtherMessageBox.Inlines.Add(newHyperLink);
@@ -497,34 +500,35 @@ namespace MessengerWPF
                         }
                         else if (result[1].ToString() == AuthdEmployee.PayrollId.ToString())
                         {
-                            var msg = new SelfMessage();
-                            msg.FromMessageBox.Text = result[2].ToString();
+                            var msg = new SelfMessage {FromMessageBox = {Text = result[2].ToString()}};
                             msg.InitializeComponent();
                             MessageStack.Children.Add(msg);
                         }
                         else if (result[1].ToString() == "0")
                         {
-                            var msg = new SystemNotiControl();
-                            msg.SystemNoti.Text = result[2].ToString();
+                            var msg = new SystemNotiControl {SystemNoti = {Text = result[2].ToString()}};
                             msg.InitializeComponent();
                             MessageStack.Children.Add(msg);
                         }
                         else if (result[1].ToString() != AuthdEmployee.PayrollId.ToString())
                         {
-                            var msg = new OtherMessage();
-                            msg.OtherMessageBox.Text = result[2].ToString();
-                            msg.SenderName.Text = _empcol.FindEmployeeByID(Int32.Parse(result[1].ToString())).FullName;
+                            var msg = new OtherMessage
+                            {
+                                OtherMessageBox = {Text = result[2].ToString()},
+                                SenderName =
+                                {
+                                    Text = _empcol.FindEmployeeByID(Int32.Parse(result[1].ToString())).FullName
+                                }
+                            };
                             msg.InitializeComponent();
                             MessageStack.Children.Add(msg);
 
-                            if (!firstLoad)
+                            if (firstLoad) continue;
+                            TextOnlyNotification[] notiText =
                             {
-                                TextOnlyNotification[] notiText =
-                                {
-                                    new TextOnlyNotification(result[2].ToString(), HandleNoti)
-                                };
-                                Notification.CreateNotification("Messenger", notiText,20);
-                            }
+                                new TextOnlyNotification(result[2].ToString(), HandleNoti)
+                            };
+                            Notification.CreateNotification("Messenger", notiText,20);
                         }
 
                     }
@@ -534,9 +538,11 @@ namespace MessengerWPF
             {
                 if (e.Message != "Skip Foreach")
                 {
-                    var msgbox = new WPFMsgBox();
-                    msgbox.Body.Text = e.Message;
-                    msgbox.DialogTitle.Text = "Failed to load";
+                    var msgbox = new WPFMsgBox
+                    {
+                        Body = {Text = e.Message},
+                        DialogTitle = {Text = "Failed to load"}
+                    };
                     msgbox.ShowDialog();
                 }
                 
@@ -551,8 +557,7 @@ namespace MessengerWPF
                     CurrentThreadPanel.Children.Clear();
                     foreach (var result in who)
                     {
-                        var ctrl = new ContactControl(result);
-                        ctrl.ThreadUsers.Content = result.FullName;
+                        var ctrl = new ContactControl(result) {ThreadUsers = {Content = result.FullName}};
                         ctrl.AddToThreadButton.Click += RemoveFromThreadClick;
                         ctrl.InitializeComponent();
                         CurrentThreadPanel.Children.Add(ctrl);
@@ -600,11 +605,9 @@ namespace MessengerWPF
 
         private void RemoveFromThreadClick(object sender, RoutedEventArgs routedEventArgs)
         {
-            if (_currentThread != -1)
-            {
-                var parent = FindParent<ContactControl>(sender as Button) as ContactControl;
-                RemoveFromThread(_currentThread, parent.EmployeeID);
-            }
+            if (_currentThread == -1) return;
+            var parent = FindParent<ContactControl>(sender as Button);
+            RemoveFromThread(_currentThread, parent.EmployeeID);
         }
 
         private void NewHyperLink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
@@ -665,7 +668,7 @@ namespace MessengerWPF
                 {
                     new TextOnlyNotification(noti["messagecontent"].ToString(), HandleNoti)
                 };
-                var currentNoti = Notification.CreateNotification(_empcol.FindEmployeeByID(Convert.ToInt32(noti["participantid"])).FullName,notiText,-1F,HandleNotiReal);
+                Notification.CreateNotification(_empcol.FindEmployeeByID(Convert.ToInt32(noti["participantid"])).FullName,notiText,-1F,HandleNotiReal);
 
 
 
@@ -723,8 +726,7 @@ namespace MessengerWPF
             var control = sender as OtherPictureControl;
             if (sender is OtherPictureControl)
             {
-                var showPicture = new ActualPicture();
-                showPicture.NewImage.Source = control.ImageContainer.Source;
+                var showPicture = new ActualPicture {NewImage = {Source = control.ImageContainer.Source}};
                 showPicture.InitializeComponent();
                 showPicture.Show();
             }
@@ -735,8 +737,7 @@ namespace MessengerWPF
             var control = sender as OtherPictureControl;
             if (control != null)
             {
-                var showPicture = new ActualPicture();
-                showPicture.NewImage.Source = control.ImageContainer.Source;
+                var showPicture = new ActualPicture {NewImage = {Source = control.ImageContainer.Source}};
                 showPicture.InitializeComponent();
                 showPicture.Show();
             }
@@ -745,25 +746,19 @@ namespace MessengerWPF
         private void Msg_TouchUp(object sender, TouchEventArgs e)
         {
             var control = sender as UserPictureControl;
-            if (control != null)
-            {
-                var showPicture = new ActualPicture();
-                showPicture.NewImage.Source = control.ImageContainer.Source;
-                showPicture.InitializeComponent();
-                showPicture.Show();
-            }
+            if (control == null) return;
+            var showPicture = new ActualPicture {NewImage = {Source = control.ImageContainer.Source}};
+            showPicture.InitializeComponent();
+            showPicture.Show();
         }
 
         private void Msg_MouseUp(object sender, MouseButtonEventArgs e)
         {
             var control = sender as UserPictureControl;
-            if (control != null)
-            {
-                var showPicture = new ActualPicture();
-                showPicture.NewImage.Source = control.ImageContainer.Source;
-                showPicture.InitializeComponent();
-                showPicture.Show();
-            }
+            if (control == null) return;
+            var showPicture = new ActualPicture {NewImage = {Source = control.ImageContainer.Source}};
+            showPicture.InitializeComponent();
+            showPicture.Show();
         }
 
         private async void TextBox_KeyDown(object sender, KeyEventArgs e)
@@ -805,16 +800,14 @@ namespace MessengerWPF
 
         private async void SendButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentThread != -1)
-            {
-                var sendMessageTask = SendMessageasync(_currentThread, TypeBox.Text);
+            if (_currentThread == -1) return;
+            var sendMessageTask = SendMessageasync(_currentThread, TypeBox.Text);
 
-                TypeBox.Text = "";
-                RefreshTimer_Tick(null, null);
-                ThreadLoaderTimerTick(null, null);
-                var success = await sendMessageTask;
-                if (!success) throw new SQLGeneric("Failed to send message");
-            }
+            TypeBox.Text = "";
+            RefreshTimer_Tick(null, null);
+            ThreadLoaderTimerTick(null, null);
+            var success = await sendMessageTask;
+            if (!success) throw new SQLGeneric("Failed to send message");
         }
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -848,28 +841,26 @@ namespace MessengerWPF
         /// <param name="e"></param>
         private void SendPhotoButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentThread != -1)
+            if (_currentThread == -1) return;
+            var dlg = new Microsoft.Win32.OpenFileDialog
             {
-                Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-                dlg.DefaultExt = ".jpg";
-                dlg.Filter = "Image Files |*.jpeg;*.png;*.jpg";
+                DefaultExt = ".jpg",
+                Filter = "Image Files |*.jpeg;*.png;*.jpg"
+            };
 
 
 
-                var result = dlg.ShowDialog();
-                if (result == true)
-                {
-                    var notidirectory = @"\\WIN-NOHLS1H9ER8\Data Storage\NotiTest\" + DateTime.Now.Ticks.ToString() + "_" + dlg.SafeFileName;
-                    File.Copy(dlg.FileName, notidirectory);
-                    var sendMessageTask = SendMessageasync(_currentThread, notidirectory);
+            var result = dlg.ShowDialog();
+            if (result != true) return;
+            var notidirectory = @"\\WIN-NOHLS1H9ER8\Data Storage\NotiTest\" + DateTime.Now.Ticks.ToString() + "_" + dlg.SafeFileName;
+            File.Copy(dlg.FileName, notidirectory);
+            var sendMessageTask = SendMessageasync(_currentThread, notidirectory);
 
-                    TypeBox.Text = "";
-                    RefreshTimer_Tick(null, null);
-                    ThreadLoaderTimerTick(null, null);
-                    var success = sendMessageTask.Result;
-                    if (!success) throw new SQLGeneric("Failed to send message");
-                }
-            }
+            TypeBox.Text = "";
+            RefreshTimer_Tick(null, null);
+            ThreadLoaderTimerTick(null, null);
+            var success = sendMessageTask.Result;
+            if (!success) throw new SQLGeneric("Failed to send message");
         }
         /// <summary>
         /// 
@@ -892,37 +883,31 @@ namespace MessengerWPF
         /// <param name="employeeId">The payrollid of the targeted employee</param>
         private void AddToThread(int threadId,int employeeId)
         {
-            if (!CheckForUserInThread(threadId,employeeId))
-            {
-                SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_threads(threadId, participantid,IsTwoWay) VALUES('" + threadId.ToString() + "', '" + employeeId.ToString() + "',0);");
-                SQLServer.MSInsertUpdate("UPDATE whldata.messenger_threads SET IsTwoWay=0 WHERE threadid='"+threadId.ToString()+"'");
-               LoadThreads();
-            }
+            if (CheckForUserInThread(threadId, employeeId)) return;
+            SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_threads(threadId, participantid,IsTwoWay) VALUES('" + threadId.ToString() + "', '" + employeeId.ToString() + "',0);");
+            SQLServer.MSInsertUpdate("UPDATE whldata.messenger_threads SET IsTwoWay=0 WHERE threadid='"+threadId.ToString()+"'");
+            LoadThreads();
         }
         private void CreateNewThread(int employeeId)
         {
             var checkForTwoWay = SQLServer.MSSelectDataDictionaryAsync("SELECT * from whldata.messenger_threads f where f.participantid ='" + AuthdEmployee.PayrollId.ToString()+ "' AND exists(SELECT * from whldata.messenger_threads s WHERE s.participantid = '" + employeeId.ToString()+ "' AND s.threadid = f.threadid) AND f.IsTwoWay = 1");
             if (checkForTwoWay == null) throw new Exception("SQL Query Failed");
-            if (checkForTwoWay.Result.Count == 0)
-            {
-                var newThread = _latestThreadId + 1;
-                SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_threads (threadId, participantid,IsTwoWay) VALUES (" + newThread.ToString() + "," + AuthdEmployee.PayrollId.ToString() + ",1)");
-                SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_threads (threadId, participantid,IsTwoWay) VALUES (" + newThread.ToString() + "," + employeeId.ToString() + ",1)");
-                _currentThread = newThread;
-                MessageStack.Children.Clear();
-                LoadThreads();
-            }
+            if (checkForTwoWay.Result.Count != 0) return;
+            var newThread = _latestThreadId + 1;
+            SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_threads (threadId, participantid,IsTwoWay) VALUES (" + newThread.ToString() + "," + AuthdEmployee.PayrollId.ToString() + ",1)");
+            SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_threads (threadId, participantid,IsTwoWay) VALUES (" + newThread.ToString() + "," + employeeId.ToString() + ",1)");
+            _currentThread = newThread;
+            MessageStack.Children.Clear();
+            LoadThreads();
         }
 
         private void RemoveFromThread(int threadId, int employeeid)
         {
             SQLServer.MSInsertUpdate("DELETE FROM whldata.messenger_threads WHERE threadid='"+threadId.ToString()+ "' AND participantid = '"+employeeid.ToString()+"';");
             SQLServer.MSInsertUpdate("INSERT INTO whldata.messenger_messages  (participantid,messagecontent,timestamp,threadid) VALUES (0,N'"+ _empcol.FindEmployeeByID(employeeid).FullName + " has been removed from the thread',Current_timestamp,'" + threadId.ToString() + "')");
-            if (CheckThreadUsers(_currentThread).Count == 0)
-            {
-                _currentThread = -1;
-                TypeBox.IsReadOnly = true;
-            }
+            if (CheckThreadUsers(_currentThread).Count != 0) return;
+            _currentThread = -1;
+            TypeBox.IsReadOnly = true;
         }
         #endregion
         #region Functions
@@ -950,9 +935,7 @@ namespace MessengerWPF
         private bool CheckForUserInThread(int ThreadID, int EmployeeID)
         {
             var results = SQLServer.MSSelectDataDictionary("SELECT * from whldata.messenger_threads WHERE participantid='" + EmployeeID.ToString() + "' AND threadid='" + ThreadID.ToString() + "'");
-            if (results == null) return false;
-            if (results.Count > 0) return true;
-            else return false;
+            return results?.Count > 0;
         }
         /// <summary>
         /// This function returns a list of Users in the thread
@@ -971,7 +954,7 @@ namespace MessengerWPF
                 {
                     if (ignoreself)
                     {
-                        if ((int.Parse(result["participantid"].ToString()) != AuthdEmployee.PayrollId))
+                        if (int.Parse(result["participantid"].ToString()) != AuthdEmployee.PayrollId)
                         //Check if we're a member of the thread
                         {
                             returnList.Add(_empcol.FindEmployeeByID(int.Parse(result["participantid"].ToString())));
@@ -995,6 +978,7 @@ namespace MessengerWPF
         /// <typeparam name="T">The required type</typeparam>
         /// <param name="child">The current UI Object</param>
         /// <returns>The specified UI element</returns>
+        [SuppressMessage("ReSharper", "TailRecursiveCall")]
         private T FindParent<T>(DependencyObject child) where T : DependencyObject
         {
             //get parent item
@@ -1005,8 +989,7 @@ namespace MessengerWPF
 
             //check if the parent matches the type we're looking for
             var parent = parentObject as T;
-            if (parent != null) return parent;
-            return FindParent<T>(parentObject); //Intentional Recursive method
+            return parent ?? FindParent<T>(parentObject);
         }
 #endregion
         private async void Messenger_Closed(object sender, EventArgs e)

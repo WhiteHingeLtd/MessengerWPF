@@ -5,7 +5,7 @@ namespace MessengerWPF.UserControls
     /// <summary>
     /// Interaction logic for SystemNotiControl.xaml
     /// </summary>
-    public partial class SystemNotiControl : UserControl
+    public partial class SystemNotiControl 
     {
         /// <summary>
         /// UserControl for use with System-Sent Messages.

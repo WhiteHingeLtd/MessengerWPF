@@ -9,7 +9,7 @@ namespace MessengerWPF.MessageStorage
     /// <summary>
     /// Class to handle all SQLite Interaction
     /// </summary>
-    public class SqLite
+    public static class SqLite
     {
         /// <summary>
         /// Current DBLocation, Defaults to the AppData folder
@@ -18,7 +18,7 @@ namespace MessengerWPF.MessageStorage
         /// <summary>
         /// Connection String, Defaults to the AppData folder
         /// </summary>
-        public static string SqLiteConnStr = @"Data Source="+ Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\WHL\Messenger.sqlite";
+        private static string SqLiteConnStr = @"Data Source="+ Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\WHL\Messenger.sqlite";
 
         /// <summary>
         /// Allows for selection of a list of dictionaries based on the Input query
@@ -39,8 +39,8 @@ namespace MessengerWPF.MessageStorage
 
                 while (returneddata.Read())
                 {
-                    int fieldloop = 0;
-                    Dictionary<string, object> row = new Dictionary<string, object>();
+                    var fieldloop = 0;
+                    var row = new Dictionary<string, object>();
                     row.Clear();
                     while (fieldloop < returneddata.FieldCount)
                     {
@@ -160,7 +160,7 @@ namespace MessengerWPF.MessageStorage
         {
 
             //From heere
-            SQLiteConnection conn = new SQLiteConnection(SqLiteConnStr);
+            var conn = new SQLiteConnection(SqLiteConnStr);
 
 
             try
@@ -169,7 +169,7 @@ namespace MessengerWPF.MessageStorage
                 conn.Open();
                 //To here should be the same every time. After here in this little block is where we actually do the work.
 
-                SQLiteCommand sqlquery = new SQLiteCommand(query, conn);
+                var sqlquery = new SQLiteCommand(query, conn);
 
                 return sqlquery.ExecuteNonQuery();
 

@@ -12,7 +12,7 @@ namespace MessengerWPF.UserControls
         /// <summary>
         /// 
         /// </summary>
-        public int EmployeeID = -1;
+        public int EmployeeId = -1;
         /// <summary>
         /// 
         /// </summary>
@@ -30,7 +30,7 @@ namespace MessengerWPF.UserControls
         {
             InitializeComponent();
             ThreadUsers.Content = emp.FullName;
-            EmployeeID = emp.PayrollId;
+            EmployeeId = emp.PayrollId;
             if (ForCurrent)
             {
                 AddImage.Source = new BitmapImage(new Uri("/Icons/removeicon.png", UriKind.Relative));
