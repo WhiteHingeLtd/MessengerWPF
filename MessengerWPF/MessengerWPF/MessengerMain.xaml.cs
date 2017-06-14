@@ -308,7 +308,7 @@ namespace MessengerWPF
                 {
                     var ctrl = new ContactControl
                     {
-                        EmployeeID = emp.PayrollId,
+                        EmployeeId = emp.PayrollId,
                         ThreadUsers = {Content = emp.FullName},
                     };
                     ctrl.ThreadUsers.Click += ThreadUsers_Click;
@@ -378,8 +378,10 @@ namespace MessengerWPF
                         {
                             if (result[1].ToString() == AuthdEmployee.PayrollId.ToString())
                             {
-                                var msg = new UserPictureControl();
-                                msg.ImageContainer.Source = new BitmapImage(new Uri(message));
+                                var msg = new UserPictureControl
+                                {
+                                    ImageContainer = {Source = new BitmapImage(new Uri(message))}
+                                };
                                 msg.InitializeComponent();
                                 msg.MouseUp += Msg_MouseUp;
                                 msg.TouchUp += Msg_TouchUp;
@@ -607,7 +609,7 @@ namespace MessengerWPF
         {
             if (_currentThread == -1) return;
             var parent = FindParent<ContactControl>(sender as Button);
-            RemoveFromThread(_currentThread, parent.EmployeeID);
+            RemoveFromThread(_currentThread, parent.EmployeeId);
         }
 
         private void NewHyperLink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
@@ -825,14 +827,14 @@ namespace MessengerWPF
         {
             var control = sender as Button;
             var parent = FindParent<ContactControl>(control);
-            CreateNewThread(parent.EmployeeID);
+            CreateNewThread(parent.EmployeeId);
         }
 
         private void AddToThreadButton_Click(object sender, RoutedEventArgs e)
         {
             var control = sender as Button;
             var parent = FindParent<ContactControl>(control);
-            if (_currentThread != -1) AddToThread(_currentThread, parent.EmployeeID);
+            if (_currentThread != -1) AddToThread(_currentThread, parent.EmployeeId);
         }
         /// <summary>
         /// Uses the Win32 OpenFileDialog function to load a photograph
